@@ -126,23 +126,36 @@ void GameWindow::handleWindowEvents(SDL_Event& e) {
 // Handles events specific to this window
 void GameWindow::input(SDL_Event& e) {
     handleWindowEvents(e);
-    ProgramValues::Cameras::freeFly.processInput(e, this);
+    ProgramValues::Cameras::cameraReference->processInput(e, this);
 }
 
 void GameWindow::update() {
-    ProgramValues::Cameras::freeFly.update();
+    ProgramValues::Cameras::cameraReference->update();
 
     Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
 
     shaderObject->use();
-    shaderObject->setVec3("u_CameraPos", ProgramValues::Cameras::freeFly.position);
+    shaderObject->setVec3("u_CameraPos", ProgramValues::Cameras::cameraReference->position);
     shaderObject->setFloat("material.shininess", 32);
 
     { // Directional Light
-        shaderObject->setVec3("dirLight.direction", -glm::vec3(0.0f, 1.0f, 0.0f));
-        shaderObject->setVec3("dirLight.ambient", glm::vec3(0.4f));
-        shaderObject->setVec3("dirLight.diffuse", glm::vec3(0.4f));
-        shaderObject->setVec3("dirLight.specular", glm::vec3(0.8f));
+        shaderObject->setVec3("dirLight.direction", -ProgramValues::Lights::References::dirLightRef->direction);
+        shaderObject->setVec3("dirLight.ambient", ProgramValues::Lights::References::dirLightRef->ambient);
+        shaderObject->setVec3("dirLight.diffuse", ProgramValues::Lights::References::dirLightRef->diffuse);
+        shaderObject->setVec3("dirLight.specular", ProgramValues::Lights::References::dirLightRef->specular);
+    }
+
+    { // Spot Light
+        shaderObject->setVec3("spotLight.position", ProgramValues::Cameras::cameraReference->position);
+        shaderObject->setVec3("spotLight.direction", ProgramValues::Cameras::cameraReference->front);
+        shaderObject->setFloat("spotLight.innerCutoff", ProgramValues::Lights::References::spotLightRef->innerCutoff);
+        shaderObject->setFloat("spotLight.outerCutoff", ProgramValues::Lights::References::spotLightRef->outerCutoff);
+        shaderObject->setFloat("spotLight.constant", ProgramValues::Lights::References::spotLightRef->constant);
+        shaderObject->setFloat("spotLight.linear", ProgramValues::Lights::References::spotLightRef->linear);
+        shaderObject->setFloat("spotLight.quadratic", ProgramValues::Lights::References::spotLightRef->quadratic);
+        shaderObject->setVec3("spotLight.ambient", ProgramValues::Lights::References::spotLightRef->ambient);
+        shaderObject->setVec3("spotLight.diffuse", ProgramValues::Lights::References::spotLightRef->diffuse);
+        shaderObject->setVec3("spotLight.specular", ProgramValues::Lights::References::spotLightRef->specular);
     }
 }
 
@@ -155,15 +168,14 @@ void GameWindow::render() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
     Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
-    Model* landscape = &ProgramValues::GameObjects::cube;
+    Model* modelRef = &ProgramValues::GameObjects::landscape;
 
-    landscape->model = glm::translate(landscape->model, glm::vec3(0.0f, 0.0f, -2.0f));
-    shaderObject->setFloat("material.shininess", 32.0f);
-    ProgramValues::GameObjects::cube.Draw(*shaderObject, landscape->model);
+    shaderObject->setFloat("material.shininess", 1.0f);
+    ProgramValues::GameObjects::modelRef->Draw(*shaderObject, modelRef->model);
  
     shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
-    shaderObject->setMat4("u_View", ProgramValues::Cameras::freeFly.getViewMatrix());
-    shaderObject->setMat3("u_NormalMatrix", landscape->getNormalMatrix());
+    shaderObject->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
+    shaderObject->setMat3("u_NormalMatrix", modelRef->getNormalMatrix());
 
     game->imGuiWindow->render();
     SDL_GL_SwapWindow(mWindow);

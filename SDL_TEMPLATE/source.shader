@@ -74,6 +74,7 @@ in vec2 TexCoords;
 out vec4 FragColor;
 
 uniform DirLight dirLight;
+uniform SpotLight spotLight;
 uniform Material material;
 uniform vec3 u_CameraPos;
 
@@ -86,6 +87,8 @@ void main(){
 	vec3 viewDir = normalize(u_CameraPos - FragPos);
 	
 	vec3 result = CalcDirLight(dirLight, norm, viewDir);
+
+	result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
 
 	FragColor = vec4(result, 1.0f);
 }

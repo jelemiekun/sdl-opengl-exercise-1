@@ -52,13 +52,15 @@ namespace ProgramValues {
 	}
 
 	namespace Cameras {
+		extern Camera* cameraReference;
 		// TODO: use camera reference
 		extern Camera freeFly;
 
 	}
 
 	namespace GameObjects {
-		extern Model cube;
+		extern Model* modelRef;
+		extern Model landscape;
 	}
 
 	namespace CameraKeyEvents {
@@ -75,6 +77,12 @@ namespace ProgramValues {
 	}
 
 	namespace Lights {
-		extern DirLight sun;
+		namespace References {
+			extern DirLight* dirLightRef;
+			extern SpotLight* spotLightRef;
+		}
+
+		extern DirLight dr_sun;
+		extern SpotLight spt_pov;
 	}
 };

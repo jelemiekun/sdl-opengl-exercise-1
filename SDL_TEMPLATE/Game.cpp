@@ -78,7 +78,7 @@ void Game::initShaders() {
 void Game::initModels() {
     spdlog::info("Initializing models...");
 
-    ProgramValues::GameObjects::cube.init("assets/models/Geometry_Nodes.glb");
+    ProgramValues::GameObjects::landscape.init("assets/models/Scene.glb");
 
     spdlog::info("Models initialized successsfully.");
 }
@@ -100,8 +100,8 @@ void Game::initFOVProjection() {
     ProgramValues::GameWindow::projection = glm::perspective(
         glm::radians(ProgramValues::Cameras::freeFly.fov),
         (float)gameWindow->width() / (float)gameWindow->height(),
-        1.0f,
-        10000.0f
+        ProgramValues::Cameras::freeFly.nearClip,
+        ProgramValues::Cameras::freeFly.farClip
     );
 }
 

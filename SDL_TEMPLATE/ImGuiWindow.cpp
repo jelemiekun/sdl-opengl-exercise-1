@@ -7,6 +7,12 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_impl_sdl2.h"
 #include "ProgramValues.h"
+#include "Model.h"
+#include "Camera.h"
+#include "Game.h"
+#include "GameWindow.h"
+
+static Game* game = Game::getInstance();
 
 const static constexpr char* OPENGL_VERSION = "#version 430";
 
@@ -62,8 +68,240 @@ void ImGuiWindow::render() {
 	ImGui::NewFrame();
 
 	ImGuiIO& io = ImGui::GetIO();
+	static ImGuiComboFlags flags = 0;
 
 	ImGui::ShowDemoWindow();
+	
+	{
+		ImGui::Begin("Camera");
+
+		{
+			Camera* cameraRef = nullptr;
+
+			const char* items[] = { "Camera1" };
+			static int item_selected_idx = 0; // Here we store our selection data as an index.
+
+			// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
+			const char* combo_preview_value = items[item_selected_idx];
+
+			if (ImGui::BeginCombo("Directional Lights##Dir", combo_preview_value, flags)) {
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++) {
+					const bool is_selected = (item_selected_idx == n);
+					if (ImGui::Selectable(items[n], is_selected))
+						item_selected_idx = n;
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			switch (item_selected_idx) {
+				case 0: cameraRef = &ProgramValues::Cameras::freeFly;
+					break;
+				default: break;
+			}
+
+			if (cameraRef) {
+				ImGui::DragFloat("FOV##Cam", &cameraRef->fov, 0.01f);
+				ImGui::DragFloat("Near Clip##Cam", &cameraRef->nearClip, 0.01f, 0.0f, 10000.0f, "%.2f");
+				ImGui::DragFloat("Far Clip##Cam", &cameraRef->farClip, 0.01f, 0.0f, 10000.0f, "%.2f");
+				ImGui::DragFloat("Position X##Cam", &cameraRef->position.x, 0.01f);
+				ImGui::DragFloat("Position Y##Cam", &cameraRef->position.y, 0.01f);
+				ImGui::DragFloat("Position Z##Cam", &cameraRef->position.z, 0.01f);
+				ImGui::DragFloat("Yaw##Cam", &cameraRef->yaw, 0.1f, -360.0f, 360.0f);
+				ImGui::DragFloat("Pitch##Cam", &cameraRef->pitch, 0.1f, -89.0f, 89.0f);
+
+				if (cameraRef->pitch > 89.0f)
+					cameraRef->pitch = 89.0f;
+				if (cameraRef->pitch < -89.0f)
+					cameraRef->pitch = -89.0f;
+
+				ProgramValues::GameWindow::projection = glm::perspective(
+					glm::radians(cameraRef->fov),
+					(float)game->gameWindow->width() / (float)game->gameWindow->height(),
+					cameraRef->nearClip,
+					cameraRef->farClip
+				);
+
+				cameraRef->updateCameraVectors();
+			}
+		}
+
+
+		ImGui::End();
+	}
+	
+	{
+		static float scalar = 1.0f;
+		static glm::vec3 localModel(1.0f);
+		static float radiansRotate = 1.0f;
+		static glm::vec3 radiansVec3(0.0f, 1.0f, 0.0f);
+
+		ImGui::Begin("Models##Models");
+
+		{
+			Model* objectModelRef = nullptr;
+
+			const char* items[] = { "Landscape" };
+			static int item_selected_idx = 0; // Here we store our selection data as an index.
+
+			// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
+			const char* combo_preview_value = items[item_selected_idx];
+
+			if (ImGui::BeginCombo("Models##Models", combo_preview_value, flags)) {
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++) {
+					const bool is_selected = (item_selected_idx == n);
+					if (ImGui::Selectable(items[n], is_selected))
+						item_selected_idx = n;
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			switch (item_selected_idx) {
+				case 0: objectModelRef = &ProgramValues::GameObjects::landscape;
+					break;
+				default: break;
+			}
+
+			if (objectModelRef) {
+				ImGui::DragFloat("Scale##Models", &scalar, 0.2f, 0.01f, 100000.0f, "%.2f");
+				ImGui::DragFloat("Translate X##Models", &localModel.x, 0.05);
+				ImGui::DragFloat("Translate Y##Models", &localModel.y, 0.05);
+				ImGui::DragFloat("Translate Z##Models", &localModel.z, 0.05);
+				ImGui::DragFloat("Radians##Models", &radiansRotate, 0.2f, 0.01f, 100000.0f, "%.2f");
+				ImGui::DragFloat("Rotate X##Models", &radiansVec3.x, 0.05);
+				ImGui::DragFloat("Rotate Y##Models", &radiansVec3.y, 0.05);
+				ImGui::DragFloat("Rotate Z##Models", &radiansVec3.z, 0.05);
+
+				if (radiansVec3.x > 90) radiansVec3.x = -90;
+				if (radiansVec3.x < -90) radiansVec3.x = 90;
+				if (radiansVec3.y > 90) radiansVec3.y = -90;
+				if (radiansVec3.y < -90) radiansVec3.y = 90;
+				if (radiansVec3.z > 90) radiansVec3.z = -90;
+				if (radiansVec3.z < -90) radiansVec3.z = 90;
+
+
+				objectModelRef->model = glm::scale(objectModelRef->model, glm::vec3(scalar));
+				objectModelRef->model = glm::translate(objectModelRef->model, localModel);
+				objectModelRef->model = glm::rotate(objectModelRef->model, glm::radians(radiansRotate), radiansVec3);
+			}
+		}
+
+		ImGui::End();
+	}
+
+	{
+		ImGui::Begin("Lights");
+
+		ImGui::Text("Directional Lights");
+
+		{
+			ProgramValues::DirLight* dirLightRef = nullptr;
+
+			const char* items[] = { "DR Light1" };
+			static int item_selected_idx = 0; // Here we store our selection data as an index.
+
+			// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
+			const char* combo_preview_value = items[item_selected_idx];
+
+			if (ImGui::BeginCombo("Directional Lights##Dir", combo_preview_value, flags)) {
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++) {
+					const bool is_selected = (item_selected_idx == n);
+					if (ImGui::Selectable(items[n], is_selected))
+						item_selected_idx = n;
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			switch (item_selected_idx) {
+				case 0: dirLightRef = &ProgramValues::Lights::dr_sun;
+					break;
+				default: break;
+			}
+
+			if (dirLightRef) {
+				float ambient = dirLightRef->ambient.x;
+				float diffuse = dirLightRef->diffuse.x;
+				float specular = dirLightRef->specular.x;
+
+				ImGui::DragFloat("X##Dir", &dirLightRef->direction.x, 0.01f, -1.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Y##Dir", &dirLightRef->direction.y, 0.01f, -1.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Z##Dir", &dirLightRef->direction.z, 0.01f, -1.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Ambient##Dir", &ambient, 0.01f, 0.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Diffuse##Dir", &diffuse, 0.01f, 0.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Specular##Dir", &specular, 0.01f, 0.0f, 1.0f, "%.2f");
+
+				dirLightRef->ambient = glm::vec3(ambient);
+				dirLightRef->diffuse = glm::vec3(diffuse);
+				dirLightRef->specular = glm::vec3(specular);
+			}
+		}
+
+		ImGui::Text("Point Lights");
+		
+		
+		ImGui::Text("Spot Lights");
+		{
+			ProgramValues::SpotLight* spotLightRef = nullptr;
+
+			const char* items[] = { "SPT Light1" };
+			static int item_selected_idx = 0; // Here we store our selection data as an index.
+
+			// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
+			const char* combo_preview_value = items[item_selected_idx];
+
+			if (ImGui::BeginCombo("Spot Lights##Spot", combo_preview_value, flags)) {
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++) {
+					const bool is_selected = (item_selected_idx == n);
+					if (ImGui::Selectable(items[n], is_selected))
+						item_selected_idx = n;
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			switch (item_selected_idx) {
+				case 0: spotLightRef = &ProgramValues::Lights::spt_pov;
+					break;
+				default: break;
+			}
+
+			if (spotLightRef) {
+				float ambient = spotLightRef->ambient.x;
+				float diffuse = spotLightRef->diffuse.x;
+				float specular = spotLightRef->specular.x;
+
+				ImGui::DragFloat("Inner Cutoff##Spot", &spotLightRef->innerCutoff, 0.01f, 0.0f, 180.0f, "%.2f");
+				ImGui::DragFloat("Outer Cutoff##Spot", &spotLightRef->outerCutoff, 0.01f, 0.0f, 180.0f, "%.2f");
+				ImGui::DragFloat("Constant##Spot", &spotLightRef->constant, 0.01f, 0.000001f, 1.0f, "%.5f");
+				ImGui::DragFloat("Linear##Spot", &spotLightRef->linear, 0.001f, 0.000001f, 1.0f, "%.5f");
+				ImGui::DragFloat("Quadratic##Spot", &spotLightRef->quadratic, 0.0001f, 0.000001f, 1.0f, "%.5f");
+				ImGui::DragFloat("Ambient##Spot", &ambient, 0.01f, 0.0f, 1.0f, "%.3f");
+				ImGui::DragFloat("Diffuse##Spot", &diffuse, 0.01f, 0.0f, 1.0f, "%.3f");
+				ImGui::DragFloat("Specular##Spot", &specular, 0.01f, 0.0f, 1.0f, "%.3f");
+
+
+				spotLightRef->ambient = glm::vec3(ambient);
+				spotLightRef->diffuse = glm::vec3(diffuse);
+				spotLightRef->specular = glm::vec3(specular);
+			}
+		}
+
+		ImGui::End();
+	}
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

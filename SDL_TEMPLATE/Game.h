@@ -20,10 +20,10 @@ public:
 
 private:
     bool running;
-    GameWindow* gameWindow;
     SDL_Event event;
 
 public:
+    GameWindow* gameWindow;
     ImGuiWindow* imGuiWindow;
 
 private:

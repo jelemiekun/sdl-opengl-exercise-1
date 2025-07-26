@@ -24,6 +24,8 @@ public:
     float speed;
     float sensitivity;
     float fov = 45.0f;
+    float nearClip = 0.1f;
+    float farClip = 100.0f;
 
     Camera();
 
@@ -36,9 +38,9 @@ public:
 
     void setViewToShader(GLuint shaderID, const std::string& uniformName) const;
 
+    void updateCameraVectors();
     void update();
 private:
-    void updateCameraVectors();
     void processKeyboard(SDL_Event& event, GameWindow* window);
     void processMouseMotion(SDL_Event& event);
 };

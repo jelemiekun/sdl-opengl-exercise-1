@@ -26,11 +26,13 @@ namespace ProgramValues {
 	}
 
 	namespace Cameras {
+		Camera* cameraReference = &freeFly;
 		Camera freeFly;
 	}
 
 	namespace GameObjects {
-		Model cube;
+		Model* modelRef = &landscape;
+		Model landscape;
 	}
 
 	namespace CameraKeyEvents {
@@ -47,11 +49,29 @@ namespace ProgramValues {
 	}
 
 	namespace Lights {
-		DirLight sun = {
-			glm::vec3(0.2f, -1.0f, 0.0f),
+		namespace References {
+			DirLight* dirLightRef = &dr_sun;
+			SpotLight* spotLightRef = &spt_pov;
+		}
+
+		DirLight dr_sun = {
+			glm::vec3(0.2f, 1.0f, 0.0f),
 			glm::vec3(0.2f),
 			glm::vec3(0.4f),
 			glm::vec3(0.6f)
+		};
+
+		SpotLight spt_pov = {
+			ProgramValues::Cameras::freeFly.position,
+			ProgramValues::Cameras::freeFly.front,
+			glm::radians(12.5f),
+			glm::radians(17.5f),
+			1.0f,
+			0.09f,
+			0.032f,
+			glm::vec3(0.0f),
+			glm::vec3(1.0f),
+			glm::vec3(1.0f),
 		};
 	}
 }
