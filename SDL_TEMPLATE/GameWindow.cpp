@@ -162,25 +162,23 @@ void GameWindow::update() {
 }
 
 void GameWindow::render() {
-    // TODO: bawat object/model may sariling mat4 transformation
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.3f, 0.3f, 0.5f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+    
+    Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
+    shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
+    shaderObject->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
+    
     auto drawModel = [this](Model* modelRef) -> void {
         Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
-
-        shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
-        shaderObject->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
         shaderObject->setMat3("u_NormalMatrix", modelRef->getNormalMatrix());
         shaderObject->setFloat("material.shininess", 1.0f);
         
-        modelRef->Draw(*shaderObject, modelRef->model);
-        modelRef->model = glm::mat4(1.0f);
+        modelRef->Draw(*shaderObject);
     };
-    
     
     drawModel(&ProgramValues::GameObjects::landscape);
     drawModel(&ProgramValues::GameObjects::cube);

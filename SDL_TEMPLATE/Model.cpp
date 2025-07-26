@@ -13,9 +13,16 @@ void Model::init(std::string const& path) {
     loadModel(path);
 }
 
-void Model::Draw(Shader& shader, glm::mat4& model) {
+void Model::Draw(Shader& shader) {
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i].Draw(shader, model);
+}
+
+void Model::updateModelMatrix() {
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, translation);
+    model = glm::scale(model, glm::vec3(scale));
+    model = glm::rotate(model, glm::radians(radiansRotate), rotateAxis);
 }
 
 glm::mat3 Model::getNormalMatrix() {

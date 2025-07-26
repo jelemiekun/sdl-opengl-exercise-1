@@ -21,11 +21,16 @@ public:
     std::string directory;
 
     glm::mat4 model;
+    float scale = 1.0f;
+    glm::vec3 translation = glm::vec3(0.0f);
+    float radiansRotate = 0.0f;
+    glm::vec3 rotateAxis = glm::vec3(0.0f, 1.0f, 0.0f);
     bool gammaCorrection;
 
     Model(bool gamma = false);
     void init(std::string const& path);
-    void Draw(Shader& shader, glm::mat4& model);
+    void Draw(Shader& shader);
+    void updateModelMatrix();
     glm::mat3 getNormalMatrix();
 
 private:

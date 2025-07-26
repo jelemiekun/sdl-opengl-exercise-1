@@ -165,11 +165,6 @@ void ImGuiWindow::render() {
 
 	
 	{
-		static float scalar = 1.0f;
-		static glm::vec3 localModel(1.0f);
-		static float radiansRotate = 1.0f;
-		static glm::vec3 radiansVec3(0.0f, 1.0f, 0.0f);
-
 		ImGui::Begin("Models##Models");
 
 		{
@@ -202,26 +197,16 @@ void ImGuiWindow::render() {
 			}
 
 			if (objectModelRef) {
-				ImGui::DragFloat("Scale##Models", &scalar, 0.2f, 0.01f, 100000.0f, "%.2f");
-				ImGui::DragFloat("Translate X##Models", &localModel.x, 0.05);
-				ImGui::DragFloat("Translate Y##Models", &localModel.y, 0.05);
-				ImGui::DragFloat("Translate Z##Models", &localModel.z, 0.05);
-				ImGui::DragFloat("Radians##Models", &radiansRotate, 0.2f, 0.01f, 100000.0f, "%.2f");
-				ImGui::DragFloat("Rotate X##Models", &radiansVec3.x, 0.05);
-				ImGui::DragFloat("Rotate Y##Models", &radiansVec3.y, 0.05);
-				ImGui::DragFloat("Rotate Z##Models", &radiansVec3.z, 0.05);
+				ImGui::DragFloat("Scale##Models", &objectModelRef->scale, 0.2f, 0.01f, 100000.0f, "%.2f");
+				ImGui::DragFloat("Translate X##Models", &objectModelRef->translation.x, 0.05);
+				ImGui::DragFloat("Translate Y##Models", &objectModelRef->translation.y, 0.05);
+				ImGui::DragFloat("Translate Z##Models", &objectModelRef->translation.z, 0.05);
+				ImGui::DragFloat("Radians##Models", &objectModelRef->radiansRotate, 0.2f, 0.01f, 100000.0f, "%.2f");
+				ImGui::DragFloat("Rotate X##Models", &objectModelRef->rotateAxis.x, 0.05);
+				ImGui::DragFloat("Rotate Y##Models", &objectModelRef->rotateAxis.y, 0.05);
+				ImGui::DragFloat("Rotate Z##Models", &objectModelRef->rotateAxis.z, 0.05);
 
-				if (radiansVec3.x > 90) radiansVec3.x = -90;
-				if (radiansVec3.x < -90) radiansVec3.x = 90;
-				if (radiansVec3.y > 90) radiansVec3.y = -90;
-				if (radiansVec3.y < -90) radiansVec3.y = 90;
-				if (radiansVec3.z > 90) radiansVec3.z = -90;
-				if (radiansVec3.z < -90) radiansVec3.z = 90;
-
-
-				objectModelRef->model = glm::translate(objectModelRef->model, localModel);
-				objectModelRef->model = glm::scale(objectModelRef->model, glm::vec3(scalar));
-				objectModelRef->model = glm::rotate(objectModelRef->model, glm::radians(radiansRotate), radiansVec3);
+				objectModelRef->updateModelMatrix();
 			}
 		}
 

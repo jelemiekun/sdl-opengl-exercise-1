@@ -107,8 +107,9 @@ void Game::initFOVProjection() {
 }
 
 void Game::preTransformModels() {
-    Model* model = &ProgramValues::GameObjects::cube;
-    model->model = glm::scale(model->model, glm::vec3(43.0f));
+    ProgramValues::GameObjects::cube.scale = 47.0f;
+    ProgramValues::GameObjects::cube.translation.y = 49.7f;
+    ProgramValues::GameObjects::cube.updateModelMatrix();
 }
 
 void Game::initializeEverything() {
