@@ -1,6 +1,7 @@
 #include "FPSManager.h"
 #include <iostream>
 #include <spdlog/spdlog.h>
+#include "ProgramValues.h"
 
 void FPSManager::calculateAverageFPS(int& countFrame, Uint32& startTime) {
     ++countFrame;
@@ -10,15 +11,14 @@ void FPSManager::calculateAverageFPS(int& countFrame, Uint32& startTime) {
 
     if (currentTime - startTime > ONE_SECOND_IN_MS) {
         float fps = countFrame / ((currentTime - startTime) / static_cast<float>(ONE_SECOND_IN_MS));
-        spdlog::info("FPS: {}", static_cast<int>(fps));
+        ProgramValues::GameWindow::FPS = static_cast<int>(fps);
         countFrame = 0;
         startTime = currentTime;
     }
 }
 
 void FPSManager::limitFPS(const Uint32& frameStart) {
-    constexpr Uint8 FPS = 60;
-    constexpr Uint32 FRAME_DURATION = static_cast<Uint32>(1000.0F / FPS);
+    Uint32 FRAME_DURATION = static_cast<Uint32>(1000.0F / ProgramValues::GameWindow::FPS_LIMIT);
 
     Uint32 frameDuration = SDL_GetTicks() - frameStart;
 

@@ -19,6 +19,7 @@ public:
     std::vector<Texture> textures_loaded;
     std::vector<Mesh> meshes;
     std::string directory;
+
     glm::mat4 model;
     bool gammaCorrection;
 

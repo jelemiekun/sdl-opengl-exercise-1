@@ -16,8 +16,6 @@ void Model::init(std::string const& path) {
 void Model::Draw(Shader& shader, glm::mat4& model) {
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i].Draw(shader, model);
-
-    model = glm::mat4(1.0f);
 }
 
 glm::mat3 Model::getNormalMatrix() {

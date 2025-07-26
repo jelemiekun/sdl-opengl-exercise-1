@@ -79,6 +79,7 @@ void Game::initModels() {
     spdlog::info("Initializing models...");
 
     ProgramValues::GameObjects::landscape.init("assets/models/Scene.glb");
+    ProgramValues::GameObjects::cube.init("assets/models/Geometry_Nodes.glb");
 
     spdlog::info("Models initialized successsfully.");
 }
@@ -105,6 +106,11 @@ void Game::initFOVProjection() {
     );
 }
 
+void Game::preTransformModels() {
+    Model* model = &ProgramValues::GameObjects::cube;
+    model->model = glm::scale(model->model, glm::vec3(43.0f));
+}
+
 void Game::initializeEverything() {
     spdlog::info("Initializing program...");
 
@@ -118,10 +124,12 @@ void Game::initializeEverything() {
     if (initializationSuccess) {
         spdlog::info("Program initialized successfully.");
 
+        SDL_GL_SetSwapInterval(0);
         initShaders();
         initModels();
         initCamera();
         initFOVProjection();
+        preTransformModels();
 
         running = true;
     } else {
@@ -137,7 +145,7 @@ void Game::gameLoop() {
     while (running) {
         Uint32 frameStart = SDL_GetTicks();
 
-        // ProgramValues::GameWindow::deltaTime = (frameStart - lastFrameTime) / 1000.0f;
+        ProgramValues::GameWindow::deltaTime = (frameStart - lastFrameTime) / 1000.0f;
         lastFrameTime = frameStart;
 
         input();

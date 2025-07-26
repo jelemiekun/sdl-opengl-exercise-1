@@ -96,6 +96,8 @@ void GameWindow::handleWindowEvents(SDL_Event& e) {
             case SDL_WINDOWEVENT_SIZE_CHANGED:
                 mWidth = e.window.data1;
                 mHeight = e.window.data2;
+                ProgramValues::GameWindow::width = mWidth;
+                ProgramValues::GameWindow::height = mHeight;
                 glViewport(0, 0, mWidth, mHeight);
                 spdlog::info("Window {} resized to {}x{}", mWindowID, mWidth, mHeight);
                 break;
@@ -166,16 +168,23 @@ void GameWindow::render() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
-    Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
-    Model* modelRef = &ProgramValues::GameObjects::landscape;
 
-    shaderObject->setFloat("material.shininess", 1.0f);
-    ProgramValues::GameObjects::modelRef->Draw(*shaderObject, modelRef->model);
- 
-    shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
-    shaderObject->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
-    shaderObject->setMat3("u_NormalMatrix", modelRef->getNormalMatrix());
+    auto drawModel = [this](Model* modelRef) -> void {
+        Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
+
+        shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
+        shaderObject->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
+        shaderObject->setMat3("u_NormalMatrix", modelRef->getNormalMatrix());
+        shaderObject->setFloat("material.shininess", 1.0f);
+        
+        modelRef->Draw(*shaderObject, modelRef->model);
+        modelRef->model = glm::mat4(1.0f);
+    };
+    
+    
+    drawModel(&ProgramValues::GameObjects::landscape);
+    drawModel(&ProgramValues::GameObjects::cube);
+    
 
     game->imGuiWindow->render();
     SDL_GL_SwapWindow(mWindow);

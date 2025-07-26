@@ -71,9 +71,36 @@ void ImGuiWindow::render() {
 	static ImGuiComboFlags flags = 0;
 
 	ImGui::ShowDemoWindow();
-	
+
+
 	{
-		ImGui::Begin("Camera");
+		ImGui::Begin("Window##Window");
+		ImGui::Text("Dimension: %d x %d", ProgramValues::GameWindow::width, ProgramValues::GameWindow::height);
+		ImGui::Text("Delta Time: %f", ProgramValues::GameWindow::deltaTime);
+		ImGui::Text("Measured FPS: %d", ProgramValues::GameWindow::FPS);
+		ImGui::Text("FPS Limit: %d", ProgramValues::GameWindow::FPS_LIMIT);
+		if (ImGui::Button("60 FPS - Power Saver##Window")) {
+			ProgramValues::GameWindow::FPS_LIMIT = 60;
+		}
+		if (ImGui::Button("120 FPS - Gameplay##Window")) {
+			ProgramValues::GameWindow::FPS_LIMIT = 120;
+		}
+		if (ImGui::Button("240 FPS - Competitive##Window")) {
+			ProgramValues::GameWindow::FPS_LIMIT = 240;
+		}
+		if (ImGui::Button("Unlimited FPS - Unlimited##Window")) {
+			ProgramValues::GameWindow::FPS_LIMIT = 99999;
+		}
+		ImGui::End();
+	}
+	
+
+
+
+
+
+	{
+		ImGui::Begin("Camera##Cam");
 
 		{
 			Camera* cameraRef = nullptr;
@@ -84,7 +111,7 @@ void ImGuiWindow::render() {
 			// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
 			const char* combo_preview_value = items[item_selected_idx];
 
-			if (ImGui::BeginCombo("Directional Lights##Dir", combo_preview_value, flags)) {
+			if (ImGui::BeginCombo("Cameras##Cam", combo_preview_value, flags)) {
 				for (int n = 0; n < IM_ARRAYSIZE(items); n++) {
 					const bool is_selected = (item_selected_idx == n);
 					if (ImGui::Selectable(items[n], is_selected))
@@ -98,8 +125,7 @@ void ImGuiWindow::render() {
 			}
 
 			switch (item_selected_idx) {
-				case 0: cameraRef = &ProgramValues::Cameras::freeFly;
-					break;
+				case 0: cameraRef = &ProgramValues::Cameras::freeFly;		break;
 				default: break;
 			}
 
@@ -132,6 +158,11 @@ void ImGuiWindow::render() {
 
 		ImGui::End();
 	}
+
+
+
+
+
 	
 	{
 		static float scalar = 1.0f;
@@ -144,7 +175,7 @@ void ImGuiWindow::render() {
 		{
 			Model* objectModelRef = nullptr;
 
-			const char* items[] = { "Landscape" };
+			const char* items[] = { "Landscape", "Cube" };
 			static int item_selected_idx = 0; // Here we store our selection data as an index.
 
 			// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
@@ -164,7 +195,8 @@ void ImGuiWindow::render() {
 			}
 
 			switch (item_selected_idx) {
-				case 0: objectModelRef = &ProgramValues::GameObjects::landscape;
+				case 0: objectModelRef = &ProgramValues::GameObjects::landscape;	break;
+				case 1: objectModelRef = &ProgramValues::GameObjects::cube;			break;
 					break;
 				default: break;
 			}
@@ -187,8 +219,8 @@ void ImGuiWindow::render() {
 				if (radiansVec3.z < -90) radiansVec3.z = 90;
 
 
-				objectModelRef->model = glm::scale(objectModelRef->model, glm::vec3(scalar));
 				objectModelRef->model = glm::translate(objectModelRef->model, localModel);
+				objectModelRef->model = glm::scale(objectModelRef->model, glm::vec3(scalar));
 				objectModelRef->model = glm::rotate(objectModelRef->model, glm::radians(radiansRotate), radiansVec3);
 			}
 		}
@@ -196,10 +228,15 @@ void ImGuiWindow::render() {
 		ImGui::End();
 	}
 
+
+
+
+
+
 	{
 		ImGui::Begin("Lights");
 
-		ImGui::Text("Directional Lights");
+		ImGui::Text("Directional Lights##Dir");
 
 		{
 			ProgramValues::DirLight* dirLightRef = nullptr;
@@ -224,8 +261,7 @@ void ImGuiWindow::render() {
 			}
 
 			switch (item_selected_idx) {
-				case 0: dirLightRef = &ProgramValues::Lights::dr_sun;
-					break;
+				case 0: dirLightRef = &ProgramValues::Lights::dr_sun;		break;
 				default: break;
 			}
 
@@ -247,10 +283,20 @@ void ImGuiWindow::render() {
 			}
 		}
 
+
+
+
+
+
 		ImGui::Text("Point Lights");
 		
 		
-		ImGui::Text("Spot Lights");
+
+
+
+
+
+		ImGui::Text("Spot Lights##Spot");
 		{
 			ProgramValues::SpotLight* spotLightRef = nullptr;
 
@@ -274,8 +320,7 @@ void ImGuiWindow::render() {
 			}
 
 			switch (item_selected_idx) {
-				case 0: spotLightRef = &ProgramValues::Lights::spt_pov;
-					break;
+				case 0: spotLightRef = &ProgramValues::Lights::spt_pov;		break;
 				default: break;
 			}
 

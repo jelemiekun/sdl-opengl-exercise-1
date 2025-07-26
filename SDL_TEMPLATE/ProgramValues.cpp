@@ -33,6 +33,7 @@ namespace ProgramValues {
 	namespace GameObjects {
 		Model* modelRef = &landscape;
 		Model landscape;
+		Model cube;
 	}
 
 	namespace CameraKeyEvents {

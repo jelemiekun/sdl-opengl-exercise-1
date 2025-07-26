@@ -39,6 +39,8 @@ private:
     void initCamera();
     void initFOVProjection();
 
+    void preTransformModels();
+
     void gameLoop();
 
     void input();
