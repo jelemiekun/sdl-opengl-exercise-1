@@ -55,6 +55,7 @@ namespace ProgramValues {
 		extern Camera* cameraReference;
 		// TODO: use camera reference
 		extern Camera freeFly;
+		extern Camera camera1;
 
 	}
 
@@ -62,6 +63,7 @@ namespace ProgramValues {
 		extern Model* modelRef;
 		extern Model landscape;
 		extern Model cube;
+		extern Model camera1;
 	}
 
 	namespace CameraKeyEvents {

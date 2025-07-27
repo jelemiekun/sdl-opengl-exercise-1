@@ -28,12 +28,14 @@ namespace ProgramValues {
 	namespace Cameras {
 		Camera* cameraReference = &freeFly;
 		Camera freeFly;
+		Camera camera1;
 	}
 
 	namespace GameObjects {
 		Model* modelRef = &landscape;
 		Model landscape;
 		Model cube;
+		Model camera1;
 	}
 
 	namespace CameraKeyEvents {

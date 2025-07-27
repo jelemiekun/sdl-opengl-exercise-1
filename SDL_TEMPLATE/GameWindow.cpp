@@ -182,6 +182,7 @@ void GameWindow::render() {
     
     drawModel(&ProgramValues::GameObjects::landscape);
     drawModel(&ProgramValues::GameObjects::cube);
+    drawModel(&ProgramValues::GameObjects::camera1);
     
 
     game->imGuiWindow->render();

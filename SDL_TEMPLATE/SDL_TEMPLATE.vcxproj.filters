@@ -108,6 +108,9 @@
     <ClCompile Include="Model.cpp">
       <Filter>Source Files\custom</Filter>
     </ClCompile>
+    <ClCompile Include="CameraPair.cpp">
+      <Filter>Source Files\custom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig">
@@ -194,6 +197,9 @@
       <Filter>Header Files\custom</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
+      <Filter>Header Files\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraPair.h">
       <Filter>Header Files\custom</Filter>
     </ClInclude>
   </ItemGroup>

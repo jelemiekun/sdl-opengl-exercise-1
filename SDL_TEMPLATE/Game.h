@@ -38,6 +38,7 @@ private:
     void initModels();
     void initCamera();
     void initFOVProjection();
+    void pairCameraAndCameraObject();
 
     void preTransformModels();
 

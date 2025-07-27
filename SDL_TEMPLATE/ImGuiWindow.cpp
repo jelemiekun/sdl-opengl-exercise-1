@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Game.h"
 #include "GameWindow.h"
+#include "CameraPair.h"
 
 static Game* game = Game::getInstance();
 
@@ -103,9 +104,8 @@ void ImGuiWindow::render() {
 		ImGui::Begin("Camera##Cam");
 
 		{
-			Camera* cameraRef = nullptr;
 
-			const char* items[] = { "Camera1" };
+			const char* items[] = { "Freefly", "Camera1"};
 			static int item_selected_idx = 0; // Here we store our selection data as an index.
 
 			// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
@@ -125,9 +125,12 @@ void ImGuiWindow::render() {
 			}
 
 			switch (item_selected_idx) {
-				case 0: cameraRef = &ProgramValues::Cameras::freeFly;		break;
+				case 0: ProgramValues::Cameras::cameraReference = &ProgramValues::Cameras::freeFly;		break;
+				case 1: ProgramValues::Cameras::cameraReference = &ProgramValues::Cameras::camera1;		break;
 				default: break;
 			}
+
+			Camera* cameraRef = ProgramValues::Cameras::cameraReference;
 
 			if (cameraRef) {
 				ImGui::DragFloat("FOV##Cam", &cameraRef->fov, 0.01f);
@@ -152,6 +155,22 @@ void ImGuiWindow::render() {
 				);
 
 				cameraRef->updateCameraVectors();
+
+				if (item_selected_idx != 0) {
+					Model* cameraModel = CameraPair::getModel(*cameraRef);
+
+					if (cameraModel) {
+						cameraModel->translation = cameraRef->position;
+
+						cameraModel->rotateAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+						cameraModel->radiansRotate = glm::radians(cameraRef->yaw);
+
+						cameraModel->updateModelMatrix();
+					} else {
+						item_selected_idx == 0;
+					}
+
+				}
 			}
 		}
 
@@ -170,7 +189,7 @@ void ImGuiWindow::render() {
 		{
 			Model* objectModelRef = nullptr;
 
-			const char* items[] = { "Landscape", "Cube" };
+			const char* items[] = { "Landscape", "Cube", "Camera1"};
 			static int item_selected_idx = 0; // Here we store our selection data as an index.
 
 			// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
@@ -192,6 +211,7 @@ void ImGuiWindow::render() {
 			switch (item_selected_idx) {
 				case 0: objectModelRef = &ProgramValues::GameObjects::landscape;	break;
 				case 1: objectModelRef = &ProgramValues::GameObjects::cube;			break;
+				case 2: objectModelRef = &ProgramValues::GameObjects::camera1;		break;
 					break;
 				default: break;
 			}

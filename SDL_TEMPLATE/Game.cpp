@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "ProgramValues.h"
 #include "imgui/imgui_impl_sdl2.h"
+#include "CameraPair.h"
 
 Game::Game() : running(false), gameWindow(nullptr), imGuiWindow(nullptr) {}
 
@@ -80,6 +81,7 @@ void Game::initModels() {
 
     ProgramValues::GameObjects::landscape.init("assets/models/Scene.glb");
     ProgramValues::GameObjects::cube.init("assets/models/Geometry_Nodes.glb");
+    ProgramValues::GameObjects::camera1.init("assets/models/Camera.glb");
 
     spdlog::info("Models initialized successsfully.");
 }
@@ -88,6 +90,13 @@ void Game::initCamera() {
     spdlog::info("Initializing cameras...");
 
     ProgramValues::Cameras::freeFly.init(
+        glm::vec3(0.0f, 0.0f, 3.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        -90.0f,
+        0.0f
+    );
+
+    ProgramValues::Cameras::camera1.init(
         glm::vec3(0.0f, 0.0f, 3.0f),
         glm::vec3(0.0f, 1.0f, 0.0f),
         -90.0f,
@@ -104,6 +113,10 @@ void Game::initFOVProjection() {
         ProgramValues::Cameras::freeFly.nearClip,
         ProgramValues::Cameras::freeFly.farClip
     );
+}
+
+void Game::pairCameraAndCameraObject() {
+    CameraPair::addPair(&ProgramValues::Cameras::camera1, &ProgramValues::GameObjects::camera1);
 }
 
 void Game::preTransformModels() {
@@ -127,10 +140,11 @@ void Game::initializeEverything() {
 
         SDL_GL_SetSwapInterval(0);
         initShaders();
-        initModels();
         initCamera();
+        initModels();
         initFOVProjection();
         preTransformModels();
+        pairCameraAndCameraObject();
 
         running = true;
     } else {
