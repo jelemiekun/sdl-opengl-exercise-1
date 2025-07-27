@@ -8,6 +8,7 @@ public:
 
     bool init();
     bool initOpenGLContext();
+    void initOpenGlContextSetup();
 
     void input(SDL_Event& e);
     void update();
@@ -29,7 +30,6 @@ public:
 private:
     void handleWindowEvents(SDL_Event& e);
     void initVariables();
-    void initOpenGlContextSetup();
 
 private:
     SDL_Window* mWindow;        // Pointer to SDL window

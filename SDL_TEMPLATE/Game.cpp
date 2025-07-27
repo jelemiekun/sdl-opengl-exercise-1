@@ -138,6 +138,7 @@ void Game::initializeEverything() {
     if (initializationSuccess) {
         spdlog::info("Program initialized successfully.");
 
+        gameWindow->initOpenGlContextSetup();
         SDL_GL_SetSwapInterval(0);
         initShaders();
         initCamera();
