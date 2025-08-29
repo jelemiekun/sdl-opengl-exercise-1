@@ -178,10 +178,20 @@ void GameWindow::render() {
         modelRef->Draw(*shaderObject);
     };
     
-    drawModel(&ProgramValues::GameObjects::landscape);
-    drawModel(&ProgramValues::GameObjects::cube);
-    drawModel(&ProgramValues::GameObjects::camera1);
+
+    glEnable(GL_CULL_FACE);
     
+    glCullFace(GL_FRONT);
+    drawModel(&ProgramValues::GameObjects::cube);
+
+    glCullFace(GL_BACK);
+    ProgramValues::GameObjects::camera1.scale = 20.0f;
+    ProgramValues::GameObjects::camera1.updateModelMatrix();
+    drawModel(&ProgramValues::GameObjects::camera1);
+
+    glDisable(GL_CULL_FACE);
+
+    drawModel(&ProgramValues::GameObjects::landscape);
 
     game->imGuiWindow->render();
     SDL_GL_SwapWindow(mWindow);
