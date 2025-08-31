@@ -23,6 +23,7 @@ namespace ProgramValues {
 		int FPS_LIMIT = 60;
 		int FPS = 0;
 		float deltaTime = 0.0f;
+		float RAMusedMB = 0;
 	}
 
 	namespace Shaders {

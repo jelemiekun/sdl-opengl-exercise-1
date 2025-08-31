@@ -265,6 +265,7 @@ void Game::input() {
 
 void Game::update() {
     gameWindow->update();
+    imGuiWindow->retrieveMemoryUsage();
 }
 
 void Game::render() {

@@ -132,6 +132,7 @@ void GameWindow::input(SDL_Event& e) {
 }
 
 void GameWindow::update() {
+
     ProgramValues::Cameras::cameraReference->update();
 
     Shader* shaderObject = &ProgramValues::Shaders::shaderObject;

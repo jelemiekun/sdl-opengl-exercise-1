@@ -13,6 +13,32 @@
 #include "GameWindow.h"
 #include "CameraPair.h"
 
+#ifdef _WIN32
+
+#include <windows.h>
+#include <psapi.h>
+
+static Uint32 lastTime = 0;
+
+void ImGuiWindow::retrieveMemoryUsage() {
+	Uint32 now = SDL_GetTicks();
+
+	if (now - lastTime > 1000) {
+		PROCESS_MEMORY_COUNTERS_EX pmc;
+		if (GetProcessMemoryInfo(GetCurrentProcess(),
+								 (PROCESS_MEMORY_COUNTERS*)&pmc,
+								 sizeof(pmc))) 
+		{
+			SIZE_T ramUsed = pmc.WorkingSetSize;
+			ProgramValues::GameWindow::RAMusedMB = static_cast<float>(ramUsed) / (1024.0f * 1024.0f);
+		}
+
+		lastTime = now;
+	}
+}
+
+#endif
+
 static Game* game = Game::getInstance();
 
 const static constexpr char* OPENGL_VERSION = "#version 430";
@@ -77,6 +103,7 @@ void ImGuiWindow::render() {
 	{
 		ImGui::Begin("Window##Window");
 		ImGui::Text("Dimension: %d x %d", ProgramValues::GameWindow::width, ProgramValues::GameWindow::height);
+		ImGui::Text("Ram Used MB: %f", ProgramValues::GameWindow::RAMusedMB);
 		ImGui::Text("Delta Time: %f", ProgramValues::GameWindow::deltaTime);
 		ImGui::Text("Measured FPS: %d", ProgramValues::GameWindow::FPS);
 		ImGui::Text("FPS Limit: %d", ProgramValues::GameWindow::FPS_LIMIT);

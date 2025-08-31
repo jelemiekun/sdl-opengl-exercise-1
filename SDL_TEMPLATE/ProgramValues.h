@@ -49,6 +49,7 @@ namespace ProgramValues {
 		extern int FPS_LIMIT;
 		extern int FPS;
 		extern float deltaTime;
+		extern float RAMusedMB;
 	}
 
 	namespace Shaders {
