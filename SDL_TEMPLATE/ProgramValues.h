@@ -5,6 +5,7 @@ class ImGuiWindow;
 class Camera;
 class Model;
 class Shader;
+class Texture2D;
 
 namespace ProgramValues {
 	struct DirLight {
@@ -37,6 +38,10 @@ namespace ProgramValues {
 		glm::vec3 specular;
 	};
 
+	namespace Textures {
+		extern Texture2D skybox;
+	}
+
 	namespace GameWindow {
 		extern glm::mat4 projection;
 		extern int width;
@@ -49,6 +54,7 @@ namespace ProgramValues {
 	namespace Shaders {
 		extern Shader shaderObject;
 		extern Shader shaderLight;
+		extern Shader shaderSkybox;
 	}
 
 	namespace Cameras {
@@ -87,5 +93,9 @@ namespace ProgramValues {
 
 		extern DirLight dr_sun;
 		extern SpotLight spt_pov;
+	}
+
+	namespace VertexArray {
+		extern unsigned int skyboxVAO;
 	}
 };

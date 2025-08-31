@@ -77,6 +77,7 @@ uniform DirLight dirLight;
 uniform SpotLight spotLight;
 uniform Material material;
 uniform vec3 u_CameraPos;
+uniform samplerCube skybox;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);

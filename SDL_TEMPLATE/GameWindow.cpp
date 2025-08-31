@@ -136,7 +136,7 @@ void GameWindow::update() {
 
     Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
 
-    shaderObject->use();
+    shaderObject->bind();
     shaderObject->setVec3("u_CameraPos", ProgramValues::Cameras::cameraReference->position);
     shaderObject->setFloat("material.shininess", 32);
 
@@ -166,32 +166,55 @@ void GameWindow::render() {
     glClearColor(0.3f, 0.3f, 0.5f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
-    Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
-    shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
-    shaderObject->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
-    
-    auto drawModel = [this](Model* modelRef) -> void {
-        Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
-        shaderObject->setMat3("u_NormalMatrix", modelRef->getNormalMatrix());
-        shaderObject->setFloat("material.shininess", 1.0f);
+    {
+        glDepthMask(GL_FALSE);
         
-        modelRef->Draw(*shaderObject);
-    };
+        Shader* shaderSkybox = &ProgramValues::Shaders::shaderSkybox;
+        shaderSkybox->bind();
+
+        ProgramValues::Textures::skybox.bind();
+
+        glm::mat4 view = glm::mat4(glm::mat3(ProgramValues::Cameras::cameraReference->getViewMatrix())); 
+
+        shaderSkybox->setInt("skybox", 0);
+        shaderSkybox->setMat4("u_Projection", ProgramValues::GameWindow::projection);
+        shaderSkybox->setMat4("u_View", view);
+
+        glBindVertexArray(ProgramValues::VertexArray::skyboxVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+        glDepthMask(GL_TRUE);
+    }
+
+    {
+        Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
+        shaderObject->bind();
+        shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
+        shaderObject->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
     
+        auto drawModel = [this](Model* modelRef) -> void {
+            Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
+            shaderObject->setMat3("u_NormalMatrix", modelRef->getNormalMatrix());
+            shaderObject->setFloat("material.shininess", 1.0f);
+        
+            modelRef->Draw(*shaderObject);
+        };
 
-    glEnable(GL_CULL_FACE);
+        //glEnable(GL_CULL_FACE);
     
-    glCullFace(GL_FRONT);
-    drawModel(&ProgramValues::GameObjects::cube);
+        glCullFace(GL_FRONT);
+        drawModel(&ProgramValues::GameObjects::cube);
 
-    glCullFace(GL_BACK);
-    ProgramValues::GameObjects::camera1.scale = 20.0f;
-    ProgramValues::GameObjects::camera1.updateModelMatrix();
-    drawModel(&ProgramValues::GameObjects::camera1);
+        glCullFace(GL_BACK);
+        ProgramValues::GameObjects::camera1.scale = 20.0f;
+        ProgramValues::GameObjects::camera1.updateModelMatrix();
+        drawModel(&ProgramValues::GameObjects::camera1);
 
-    glDisable(GL_CULL_FACE);
+        glDisable(GL_CULL_FACE);
 
-    drawModel(&ProgramValues::GameObjects::landscape);
+        drawModel(&ProgramValues::GameObjects::landscape);
+    } 
 
     game->imGuiWindow->render();
     SDL_GL_SwapWindow(mWindow);

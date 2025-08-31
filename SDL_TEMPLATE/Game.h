@@ -37,6 +37,7 @@ private:
     void initShaders();
     void initModels();
     void initCamera();
+    void initCubemaps();
     void initFOVProjection();
     void pairCameraAndCameraObject();
 

@@ -134,13 +134,6 @@ void Shader::unbind() const {
 	glUseProgram(0);
 }
 
-void Shader::use() const {
-	if (usable)
-		glUseProgram(ID);
-	else
-		spdlog::warn("Unusable shader program.");
-}
-
 void Shader::setBool(const std::string& name, bool value) {
 	glUniform1i(getUniformLocation(name), value);
 }

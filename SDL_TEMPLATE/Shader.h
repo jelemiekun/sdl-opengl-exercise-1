@@ -31,7 +31,6 @@ public:
 	~Shader();
 
 	void init(const char* sourcePath);
-	void use() const;
 	void bind() const;
 	void unbind() const;
 	void setBool(const std::string& name, bool value);

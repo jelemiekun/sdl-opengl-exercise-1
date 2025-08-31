@@ -10,6 +10,7 @@
 #include "ProgramValues.h"
 #include "imgui/imgui_impl_sdl2.h"
 #include "CameraPair.h"
+#include "Texture2D.h"
 
 Game::Game() : running(false), gameWindow(nullptr), imGuiWindow(nullptr) {}
 
@@ -72,6 +73,7 @@ void Game::initShaders() {
 
     ProgramValues::Shaders::shaderObject.init("source.shader");
     ProgramValues::Shaders::shaderLight.init("light.shader");
+    ProgramValues::Shaders::shaderSkybox.init("skybox.shader");
 
     spdlog::info("Shaders initialized successfully.");
 }
@@ -104,6 +106,83 @@ void Game::initCamera() {
     );
 
     spdlog::info("Cameras initialized successfully.");
+}
+
+void Game::initCubemaps() {
+    ProgramValues::Shaders::shaderSkybox.bind();
+
+    float skyboxVertices[] = {      
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
+
+    unsigned int skyboxVBO;
+    glGenVertexArrays(1, &ProgramValues::VertexArray::skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+
+    glBindVertexArray(ProgramValues::VertexArray::skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+    glBindVertexArray(0);
+
+
+
+    std::vector<std::string> faces = {
+        "assets/images/skybox/right.jpg", 
+        "assets/images/skybox/left.jpg",
+        "assets/images/skybox/top.jpg", 
+        "assets/images/skybox/bottom.jpg",
+        "assets/images/skybox/front.jpg", 
+        "assets/images/skybox/back.jpg"
+    };
+
+    if (ProgramValues::Textures::skybox.loadCubemap(faces))
+        spdlog::info("Initialized cubemaps successfully.");
+    else
+        spdlog::error("Failed to initialized cubemaps.");
 }
 
 void Game::initFOVProjection() {
@@ -143,6 +222,7 @@ void Game::initializeEverything() {
         initShaders();
         initCamera();
         initModels();
+        initCubemaps();
         initFOVProjection();
         preTransformModels();
         pairCameraAndCameraObject();

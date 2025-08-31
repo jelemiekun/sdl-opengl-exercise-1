@@ -3,8 +3,13 @@
 #include "Model.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "Texture2D.h"
 
 namespace ProgramValues {
+	namespace Textures {
+		Texture2D skybox;
+	}
+
 	namespace GameWindow {
 		glm::mat4 projection = glm::perspective(
 			glm::radians(0.0f),
@@ -23,6 +28,7 @@ namespace ProgramValues {
 	namespace Shaders {
 		Shader shaderObject;
 		Shader shaderLight;
+		Shader shaderSkybox;
 	}
 
 	namespace Cameras {
@@ -76,5 +82,9 @@ namespace ProgramValues {
 			glm::vec3(1.0f),
 			glm::vec3(1.0f),
 		};
+	}
+
+	namespace VertexArray {
+		unsigned int skyboxVAO;
 	}
 }
