@@ -167,27 +167,6 @@ void GameWindow::render() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
     {
-        glDepthMask(GL_FALSE);
-        
-        Shader* shaderSkybox = &ProgramValues::Shaders::shaderSkybox;
-        shaderSkybox->bind();
-
-        ProgramValues::Textures::skybox.bind();
-
-        glm::mat4 view = glm::mat4(glm::mat3(ProgramValues::Cameras::cameraReference->getViewMatrix())); 
-
-        shaderSkybox->setInt("skybox", 0);
-        shaderSkybox->setMat4("u_Projection", ProgramValues::GameWindow::projection);
-        shaderSkybox->setMat4("u_View", view);
-
-        glBindVertexArray(ProgramValues::VertexArray::skyboxVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        glDepthMask(GL_TRUE);
-    }
-
-    {
         Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
         shaderObject->bind();
         shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
@@ -215,6 +194,29 @@ void GameWindow::render() {
 
         drawModel(&ProgramValues::GameObjects::landscape);
     } 
+
+    {
+        glDepthFunc(GL_LEQUAL);
+        glDepthMask(GL_FALSE);
+
+        Shader* shaderSkybox = &ProgramValues::Shaders::shaderSkybox;
+        shaderSkybox->bind();
+
+        ProgramValues::Textures::skybox.bind();
+
+        glm::mat4 view = glm::mat4(glm::mat3(ProgramValues::Cameras::cameraReference->getViewMatrix())); 
+
+        shaderSkybox->setInt("skybox", 0);
+        shaderSkybox->setMat4("u_Projection", ProgramValues::GameWindow::projection);
+        shaderSkybox->setMat4("u_View", view);
+
+        glBindVertexArray(ProgramValues::VertexArray::skyboxVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
+    }
 
     game->imGuiWindow->render();
     SDL_GL_SwapWindow(mWindow);
