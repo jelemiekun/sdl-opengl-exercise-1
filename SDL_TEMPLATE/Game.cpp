@@ -81,9 +81,8 @@ void Game::initShaders() {
 void Game::initModels() {
     spdlog::info("Initializing models...");
 
-    ProgramValues::GameObjects::landscape.init("assets/models/Scene.glb");
-    ProgramValues::GameObjects::cube.init("assets/models/Geometry_Nodes.glb");
-    ProgramValues::GameObjects::camera1.init("assets/models/Camera.glb");
+    ProgramValues::GameObjects::plane.init("assets/models/Plain_Plane.glb");
+    ProgramValues::GameObjects::cube.init("assets/models/Plain_Cube.glb");
 
     spdlog::info("Models initialized successsfully.");
 }
@@ -195,12 +194,14 @@ void Game::initFOVProjection() {
 }
 
 void Game::pairCameraAndCameraObject() {
-    CameraPair::addPair(&ProgramValues::Cameras::camera1, &ProgramValues::GameObjects::camera1);
+    // CameraPair::addPair(&ProgramValues::Cameras::camera1, &ProgramValues::GameObjects::camera1);
 }
 
 void Game::preTransformModels() {
-    ProgramValues::GameObjects::cube.scale = 47.0f;
-    ProgramValues::GameObjects::cube.translation.y = 49.7f;
+    ProgramValues::GameObjects::plane.scale = 5.0f;
+    ProgramValues::GameObjects::plane.updateModelMatrix();
+
+    ProgramValues::GameObjects::cube.translation = glm::vec3(0.0f, 3.0f, 0.0f);
     ProgramValues::GameObjects::cube.updateModelMatrix();
 }
 

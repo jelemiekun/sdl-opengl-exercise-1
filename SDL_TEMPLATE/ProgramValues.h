@@ -68,9 +68,8 @@ namespace ProgramValues {
 
 	namespace GameObjects {
 		extern Model* modelRef;
-		extern Model landscape;
+		extern Model plane;
 		extern Model cube;
-		extern Model camera1;
 	}
 
 	namespace CameraKeyEvents {
