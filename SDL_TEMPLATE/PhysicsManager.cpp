@@ -1,5 +1,11 @@
 #include <spdlog/spdlog.h>
+#include "ProgramValues.h"
 #include "PhysicsManager.h"
+#include "Model.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 btDiscreteDynamicsWorld* PhysicsManager::dynamicsWorld = nullptr;
 
@@ -20,6 +26,42 @@ void PhysicsManager::init() {
 
 void PhysicsManager::update(const float deltaTime) {
 	dynamicsWorld->stepSimulation(deltaTime, 10);
+}
+
+void PhysicsManager::updateModelMatrix(Model* model, btRigidBody* body) {
+	btTransform transRef = PhysicsManager::getTrans(body);
+
+	// Update position
+    btVector3 pos = transRef.getOrigin();
+    glm::vec3 cubePos(pos.x(), pos.y(), pos.z());
+    model->translation = cubePos;
+
+	// Update rotation
+    btQuaternion rot = transRef.getRotation();
+    glm::quat glmQuat(rot.w(), rot.x(), rot.y(), rot.z());
+
+    // Extract axis + angle from quaternion
+    float angle = 2.0f * acos(glmQuat.w);
+    float s = sqrt(1.0f - glmQuat.w * glmQuat.w);
+
+    glm::vec3 axis;
+    if (s < 0.0001f) {
+        // If quaternion is close to identity, choose default axis
+        axis = glm::vec3(0.0f, 1.0f, 0.0f);
+    } else {
+        axis = glm::normalize(glm::vec3(glmQuat.x, glmQuat.y, glmQuat.z) / s);
+    }
+
+    model->radiansRotate = angle;
+    model->rotateAxis = axis;
+
+    // Build model matrix
+    model->model =
+        glm::translate(glm::mat4(1.0f), model->translation) *
+        glm::mat4_cast(glmQuat) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(model->scale));
+
+    model->updateModelMatrix();
 }
 
 btTransform PhysicsManager::getTrans(btRigidBody* RB) {

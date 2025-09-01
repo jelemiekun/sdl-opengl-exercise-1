@@ -134,18 +134,7 @@ void GameWindow::input(SDL_Event& e) {
 
 void GameWindow::update() {
     PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
-
-    {
-        btTransform transRef = PhysicsManager::getTrans(PhysicsManager::cubeBody);
-
-        btVector3 pos = transRef.getOrigin();
-
-        glm::vec3 cubePos(pos.x(), pos.y(), pos.z());
-
-        Model* modelRef = &ProgramValues::GameObjects::cube;
-        modelRef->translation = cubePos;
-        modelRef->updateModelMatrix();
-    }
+    PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::cube, PhysicsManager::cubeBody);
 
     ProgramValues::Cameras::cameraReference->update();
 
