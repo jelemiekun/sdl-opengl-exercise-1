@@ -11,6 +11,7 @@
 #include "imgui/imgui_impl_sdl2.h"
 #include "CameraPair.h"
 #include "Texture2D.h"
+#include "PhysicsManager.h"
 
 Game::Game() : running(false), gameWindow(nullptr), imGuiWindow(nullptr) {}
 
@@ -197,12 +198,8 @@ void Game::pairCameraAndCameraObject() {
     // CameraPair::addPair(&ProgramValues::Cameras::camera1, &ProgramValues::GameObjects::camera1);
 }
 
-void Game::preTransformModels() {
-    ProgramValues::GameObjects::plane.scale = 5.0f;
-    ProgramValues::GameObjects::plane.updateModelMatrix();
-
-    ProgramValues::GameObjects::cube.translation = glm::vec3(0.0f, 3.0f, 0.0f);
-    ProgramValues::GameObjects::cube.updateModelMatrix();
+void Game::initPhysicsManager() {
+    PhysicsManager::init();
 }
 
 void Game::initializeEverything() {
@@ -225,8 +222,8 @@ void Game::initializeEverything() {
         initModels();
         initCubemaps();
         initFOVProjection();
-        preTransformModels();
         pairCameraAndCameraObject();
+        initPhysicsManager();
 
         running = true;
     } else {

@@ -40,8 +40,7 @@ private:
     void initCubemaps();
     void initFOVProjection();
     void pairCameraAndCameraObject();
-
-    void preTransformModels();
+    void initPhysicsManager();
 
     void gameLoop();
 
