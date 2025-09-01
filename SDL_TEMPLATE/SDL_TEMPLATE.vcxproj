@@ -200,7 +200,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\jelemiekun\source\repos\sdl_opengl_prac\SDL_TEMPLATE\imgui;C:\glad\include;C:\spdlog\include;$(ProjectDir)header files;C:\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\jelemiekun\source\repos\sdl_opengl_prac\SDL_TEMPLATE\imgui;C:\glad\include;C:\spdlog\include;$(ProjectDir)header files;C:\glm;C:\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

@@ -139,17 +139,11 @@ void GameWindow::update() {
         btTransform transRef = PhysicsManager::getTrans(PhysicsManager::cubeBody);
 
         btVector3 pos = transRef.getOrigin();
-        btQuaternion rot = transRef.getRotation();
 
         glm::vec3 cubePos(pos.x(), pos.y(), pos.z());
-        btQuaternion q = transRef.getRotation();
-        btScalar roll, pitch, yaw;
-        q.getEulerZYX(yaw, pitch, roll);
-        glm::vec3 cubeRot(pitch, yaw, roll);
 
         Model* modelRef = &ProgramValues::GameObjects::cube;
         modelRef->translation = cubePos;
-        modelRef->rotateAxis = cubeRot;
         modelRef->updateModelMatrix();
     }
 

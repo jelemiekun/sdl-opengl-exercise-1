@@ -23,7 +23,7 @@ public:
     float pitch;
     float speed;
     float sensitivity;
-    float fov = 45.0f;
+    float fov = 60.0f;
     float nearClip = 0.1f;
     float farClip = 1000.0f;
 
