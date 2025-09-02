@@ -135,6 +135,11 @@ void GameWindow::input(SDL_Event& e) {
 void GameWindow::update() {
     PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
     PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::cube, PhysicsManager::cubeBody);
+    PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::triangle, PhysicsManager::triangleBody);
+
+    if (SDL_GetTicks() > 5000) {
+        PhysicsManager::updateExperiment();
+    }
     // PhysicsManager::getWorld()->debugDrawWorld();
 
     ProgramValues::Cameras::cameraReference->update();
@@ -188,6 +193,8 @@ void GameWindow::render() {
         drawModel(&ProgramValues::GameObjects::cube);
         
         drawModel(&ProgramValues::GameObjects::plane);
+
+        drawModel(&ProgramValues::GameObjects::triangle);
 
         shaderObject->unbind();
     } 

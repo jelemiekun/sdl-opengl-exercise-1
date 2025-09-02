@@ -12,6 +12,7 @@ public:
 	static void init();
 	static void update(const float deltaTime);
 	static void updateModelMatrix(Model* model, btRigidBody* body);
+	static void updateExperiment();
 
 	static inline btVector3 getGravity() { return gravity; }
 	static btDiscreteDynamicsWorld* getWorld();
@@ -31,9 +32,11 @@ private:
 private:
 	static btCollisionShape* cubeShape;
 	static btCollisionShape* planeShape;
+	static btConvexHullShape* convexShape;
 
 public:
 	static btRigidBody* cubeBody;
 	static btRigidBody* planeBody;
+	static btRigidBody* triangleBody;
 };
 

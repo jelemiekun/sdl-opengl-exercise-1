@@ -70,6 +70,7 @@ namespace ProgramValues {
 		extern Model* modelRef;
 		extern Model plane;
 		extern Model cube;
+		extern Model triangle;
 	}
 
 	namespace CameraKeyEvents {

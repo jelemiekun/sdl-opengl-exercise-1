@@ -85,6 +85,7 @@ void Game::initModels() {
 
     ProgramValues::GameObjects::plane.init("assets/models/Plain_Plane.glb");
     ProgramValues::GameObjects::cube.init("assets/models/Plain_Cube.glb");
+    ProgramValues::GameObjects::triangle.init("assets/models/Plain_Triangle.glb");
 
     spdlog::info("Models initialized successsfully.");
 }

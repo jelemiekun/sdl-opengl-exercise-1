@@ -42,6 +42,7 @@ namespace ProgramValues {
 		Model* modelRef = &plane;
 		Model plane;
 		Model cube;
+		Model triangle;
 	}
 
 	namespace CameraKeyEvents {

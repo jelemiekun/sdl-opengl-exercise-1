@@ -1,6 +1,8 @@
 #include <spdlog/spdlog.h>
 #include "PhysicsManager.h"
+#include "ProgramValues.h"
 #include "Model.h"
+#include "Mesh.h"
 #include "DebugDrawer.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -13,9 +15,11 @@ DebugDrawer* PhysicsManager::debugDrawer = nullptr;
 
 btCollisionShape* PhysicsManager::cubeShape = nullptr;
 btCollisionShape* PhysicsManager::planeShape = nullptr;
+btConvexHullShape* PhysicsManager::convexShape = nullptr;
 
 btRigidBody* PhysicsManager::cubeBody = nullptr;
 btRigidBody* PhysicsManager::planeBody = nullptr;
+btRigidBody* PhysicsManager::triangleBody = nullptr;
 
 btVector3 PhysicsManager::gravity = btVector3(0, -9.8f, 0);
 
@@ -46,6 +50,16 @@ void PhysicsManager::updateModelMatrix(Model* model, btRigidBody* body) {
         glm::translate(glm::mat4(1.0f), cubePos) *
         glm::mat4_cast(glmQuat) *
         glm::scale(glm::mat4(1.0f), glm::vec3(model->scale));
+}
+
+void PhysicsManager::updateExperiment() {
+	static bool hasChanged = false;
+	cubeBody->applyTorque(btVector3(2,4,6));
+	if (!hasChanged) {
+		cubeBody->clearForces();
+
+		hasChanged = true;
+	}
 }
 
 btDiscreteDynamicsWorld* PhysicsManager::getWorld() {
@@ -98,6 +112,18 @@ void PhysicsManager::initCollisionShapes() {
 	
 	cubeShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
 	planeShape = new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), 0);
+	convexShape = new btConvexHullShape;
+
+	{
+		Model* triangle = &ProgramValues::GameObjects::triangle;
+
+		for (auto& mesh : triangle->meshes) {
+			for (auto& v : mesh.vertices) {
+				convexShape->addPoint(btVector3(v.Position.x, v.Position.y, v.Position.z));
+			}
+		}
+
+	}
 
 	spdlog::info("Initialized collision shapes successfully.");
 }
@@ -118,8 +144,7 @@ void PhysicsManager::initRigidBodies() {
 		btRigidBody::btRigidBodyConstructionInfo cubeRBInfo(mass, cubeMotion, cubeShape, inertia);
 		cubeBody = new btRigidBody(cubeRBInfo);
 		cubeBody->setRestitution(0.5f);
-		cubeBody->applyCentralImpulse(btVector3(10.0f, 0.0f, 0.0f));
-		cubeBody->applyTorqueImpulse(btVector3(10.0f, 0.0f, 0.0f));
+		//cubeBody->applyCentralImpulse(btVector3(10.0f, 0.0f, 0.0f));
 		cubeBody->setFriction(4.5f);
 
 		dynamicsWorld->addRigidBody(cubeBody);
@@ -136,6 +161,22 @@ void PhysicsManager::initRigidBodies() {
 		planeBody->setFriction(2.0f);
 
 		dynamicsWorld->addRigidBody(planeBody);
+	}
+
+	{
+		btScalar mass = 1.0f;
+		btVector3 localInertia(0,0,0);
+		convexShape->calculateLocalInertia(mass, localInertia);
+
+		btDefaultMotionState* motionState = new btDefaultMotionState(
+			btTransform(btQuaternion(0,0,0,1), btVector3(0,10,0))
+		);
+
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, convexShape, localInertia);
+		triangleBody = new btRigidBody(rbInfo);
+
+		dynamicsWorld->addRigidBody(triangleBody);
+
 	}
 
 	spdlog::info("Initialized rigid bodies successfully.");
