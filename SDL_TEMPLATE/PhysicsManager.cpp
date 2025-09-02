@@ -2,12 +2,15 @@
 #include "ProgramValues.h"
 #include "PhysicsManager.h"
 #include "Model.h"
+#include "DebugDrawer.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 btDiscreteDynamicsWorld* PhysicsManager::dynamicsWorld = nullptr;
+
+DebugDrawer* PhysicsManager::debugDrawer = nullptr;
 
 btCollisionShape* PhysicsManager::cubeShape = nullptr;
 btCollisionShape* PhysicsManager::planeShape = nullptr;
@@ -20,6 +23,7 @@ btVector3 PhysicsManager::gravity = btVector3(0, -9.8f, 0);
 
 void PhysicsManager::init() {
 	initPhysicsWorld();
+	initDebugger();
 	initCollisionShapes();
 	initRigidBodies();
 }
@@ -64,6 +68,10 @@ void PhysicsManager::updateModelMatrix(Model* model, btRigidBody* body) {
     model->updateModelMatrix();
 }
 
+btDiscreteDynamicsWorld* PhysicsManager::getWorld() {
+	return dynamicsWorld;
+}
+
 btTransform PhysicsManager::getTrans(btRigidBody* RB) {
 	btTransform trans;
 
@@ -74,6 +82,10 @@ btTransform PhysicsManager::getTrans(btRigidBody* RB) {
 	}
 
 	return trans;
+}
+
+DebugDrawer* PhysicsManager::getDebugDrawer() {
+	return debugDrawer;
 }
 
 void PhysicsManager::initPhysicsWorld() {
@@ -95,6 +107,11 @@ void PhysicsManager::initPhysicsWorld() {
 	// Set gravity
 	dynamicsWorld->setGravity(gravity);
 	spdlog::info("Initialized gravity with {}, {}, {}", gravity.x(), gravity.y(), gravity.z());
+}
+
+void PhysicsManager::initDebugger() {
+	debugDrawer = new DebugDrawer;
+	dynamicsWorld->setDebugDrawer(debugDrawer);
 }
 
 void PhysicsManager::initCollisionShapes() {

@@ -135,6 +135,7 @@ void GameWindow::input(SDL_Event& e) {
 void GameWindow::update() {
     PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
     PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::cube, PhysicsManager::cubeBody);
+    PhysicsManager::getWorld()->debugDrawWorld();
 
     ProgramValues::Cameras::cameraReference->update();
 

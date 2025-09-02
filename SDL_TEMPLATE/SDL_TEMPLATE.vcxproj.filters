@@ -114,6 +114,9 @@
     <ClCompile Include="PhysicsManager.cpp">
       <Filter>Source Files\custom</Filter>
     </ClCompile>
+    <ClCompile Include="DebugDrawer.cpp">
+      <Filter>Source Files\custom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig">
@@ -209,6 +212,9 @@
       <Filter>Header Files\custom</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsManager.h">
+      <Filter>Header Files\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugDrawer.h">
       <Filter>Header Files\custom</Filter>
     </ClInclude>
   </ItemGroup>

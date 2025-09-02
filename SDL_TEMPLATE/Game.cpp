@@ -12,6 +12,7 @@
 #include "CameraPair.h"
 #include "Texture2D.h"
 #include "PhysicsManager.h"
+#include "DebugDrawer.h"
 
 Game::Game() : running(false), gameWindow(nullptr), imGuiWindow(nullptr) {}
 
@@ -200,6 +201,7 @@ void Game::pairCameraAndCameraObject() {
 
 void Game::initPhysicsManager() {
     PhysicsManager::init();
+    PhysicsManager::getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawConstraints);
 }
 
 void Game::initializeEverything() {
