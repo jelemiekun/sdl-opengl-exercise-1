@@ -31,39 +31,21 @@ void PhysicsManager::update(const float deltaTime) {
 }
 
 void PhysicsManager::updateModelMatrix(Model* model, btRigidBody* body) {
-	btTransform transRef = PhysicsManager::getTrans(body);
+    btTransform transRef = PhysicsManager::getTrans(body);
 
-	// Update position
+    // Position
     btVector3 pos = transRef.getOrigin();
     glm::vec3 cubePos(pos.x(), pos.y(), pos.z());
-    model->translation = cubePos;
 
-	// Update rotation
+    // Rotation
     btQuaternion rot = transRef.getRotation();
-    glm::quat glmQuat(rot.w(), rot.x(), rot.y(), rot.z());
+    glm::quat glmQuat(rot.w(), rot.x(), rot.y(), rot.z()); // Bullet: (x,y,z,w), GLM: (w,x,y,z)
 
-    // Extract axis + angle from quaternion
-    float angle = 2.0f * acos(glmQuat.w);
-    float s = sqrt(1.0f - glmQuat.w * glmQuat.w);
-
-    glm::vec3 axis;
-    if (s < 0.0001f) {
-        // If quaternion is close to identity, choose default axis
-        axis = glm::vec3(0.0f, 1.0f, 0.0f);
-    } else {
-        axis = glm::normalize(glm::vec3(glmQuat.x, glmQuat.y, glmQuat.z) / s);
-    }
-
-    model->radiansRotate = angle;
-    model->rotateAxis = axis;
-
-    // Build model matrix
+    // Build T * R * S
     model->model =
-        glm::translate(glm::mat4(1.0f), model->translation) *
+        glm::translate(glm::mat4(1.0f), cubePos) *
         glm::mat4_cast(glmQuat) *
         glm::scale(glm::mat4(1.0f), glm::vec3(model->scale));
-
-    model->updateModelMatrix();
 }
 
 btDiscreteDynamicsWorld* PhysicsManager::getWorld() {
@@ -135,6 +117,10 @@ void PhysicsManager::initRigidBodies() {
 
 		btRigidBody::btRigidBodyConstructionInfo cubeRBInfo(mass, cubeMotion, cubeShape, inertia);
 		cubeBody = new btRigidBody(cubeRBInfo);
+		cubeBody->setRestitution(0.5f);
+		cubeBody->applyCentralImpulse(btVector3(10.0f, 0.0f, 0.0f));
+		cubeBody->applyTorqueImpulse(btVector3(10.0f, 0.0f, 0.0f));
+		cubeBody->setFriction(4.5f);
 
 		dynamicsWorld->addRigidBody(cubeBody);
 	}
@@ -146,6 +132,8 @@ void PhysicsManager::initRigidBodies() {
 
 		btRigidBody::btRigidBodyConstructionInfo planeRBInfo(0, planeMotion, planeShape, btVector3(0, 0, 0));
 		planeBody = new btRigidBody(planeRBInfo);
+		planeBody->setRestitution(1.0f);
+		planeBody->setFriction(2.0f);
 
 		dynamicsWorld->addRigidBody(planeBody);
 	}

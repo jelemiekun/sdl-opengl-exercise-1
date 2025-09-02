@@ -204,6 +204,11 @@ void Game::initPhysicsManager() {
     PhysicsManager::getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawConstraints);
 }
 
+void Game::preTransformObjects() {
+    ProgramValues::GameObjects::plane.scale = 5.0f;
+    ProgramValues::GameObjects::plane.updateModelMatrix();
+}
+
 void Game::initializeEverything() {
     spdlog::info("Initializing program...");
 
@@ -226,6 +231,7 @@ void Game::initializeEverything() {
         initFOVProjection();
         pairCameraAndCameraObject();
         initPhysicsManager();
+        preTransformObjects();
 
         running = true;
     } else {

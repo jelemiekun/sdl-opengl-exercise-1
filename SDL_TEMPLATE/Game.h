@@ -41,6 +41,7 @@ private:
     void initFOVProjection();
     void pairCameraAndCameraObject();
     void initPhysicsManager();
+    void preTransformObjects();
 
     void gameLoop();
 
