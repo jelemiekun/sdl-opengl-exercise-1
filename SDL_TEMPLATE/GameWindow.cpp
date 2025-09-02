@@ -135,7 +135,7 @@ void GameWindow::input(SDL_Event& e) {
 void GameWindow::update() {
     PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
     PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::cube, PhysicsManager::cubeBody);
-    PhysicsManager::getWorld()->debugDrawWorld();
+    // PhysicsManager::getWorld()->debugDrawWorld();
 
     ProgramValues::Cameras::cameraReference->update();
 
@@ -215,15 +215,6 @@ void GameWindow::render() {
         glDepthFunc(GL_LESS);
 
         shaderSkybox->unbind();
-    }
-
-    {
-        Shader* shaderDebug = &ProgramValues::Shaders::shaderDebug;
-        shaderDebug->bind();
-        shaderDebug->setMat4("u_Projection", ProgramValues::GameWindow::projection);
-        shaderDebug->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
-        PhysicsManager::renderDebugLines();
-        shaderDebug->unbind();
     }
 
     game->imGuiWindow->render();

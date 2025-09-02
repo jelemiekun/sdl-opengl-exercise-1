@@ -76,7 +76,6 @@ void Game::initShaders() {
     ProgramValues::Shaders::shaderObject.init("source.shader");
     ProgramValues::Shaders::shaderLight.init("light.shader");
     ProgramValues::Shaders::shaderSkybox.init("skybox.shader");
-    ProgramValues::Shaders::shaderDebug.init("skybox.shader");
 
     spdlog::info("Shaders initialized successfully.");
 }

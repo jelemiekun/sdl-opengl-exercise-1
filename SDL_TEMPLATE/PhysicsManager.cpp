@@ -19,15 +19,9 @@ btRigidBody* PhysicsManager::planeBody = nullptr;
 
 btVector3 PhysicsManager::gravity = btVector3(0, -9.8f, 0);
 
-GLuint* PhysicsManager::gDebugVAO = nullptr;
-GLuint* PhysicsManager::gDebugVBO = nullptr;
-
-std::vector<PhysicsManager::LineVertex> PhysicsManager::gDebugLines;
-
 void PhysicsManager::init() {
 	initPhysicsWorld();
 	initDebugger();
-	initVertexObjects();
 	initCollisionShapes();
 	initRigidBodies();
 }
@@ -70,21 +64,6 @@ void PhysicsManager::updateModelMatrix(Model* model, btRigidBody* body) {
         glm::scale(glm::mat4(1.0f), glm::vec3(model->scale));
 
     model->updateModelMatrix();
-}
-
-void PhysicsManager::renderDebugLines() {
-	if (!gDebugLines.empty()) {
-		glBindVertexArray(*gDebugVAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, *gDebugVBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, gDebugLines.size() * sizeof(LineVertex), gDebugLines.data());
-
-		glDrawArrays(GL_LINES, 0, gDebugLines.size());
-
-		glBindVertexArray(0);
-
-		gDebugLines.clear(); // prepare for next frame
-	}
 }
 
 btDiscreteDynamicsWorld* PhysicsManager::getWorld() {
@@ -132,24 +111,6 @@ void PhysicsManager::initDebugger() {
 	debugDrawer = new DebugDrawer;
 	dynamicsWorld->setDebugDrawer(debugDrawer);
 }
-
-void PhysicsManager::initVertexObjects() {
-	gDebugVAO = new GLuint;
-	gDebugVBO = new GLuint;
-
-	glGenVertexArrays(1, PhysicsManager::gDebugVAO);
-	glGenBuffers(1, PhysicsManager::gDebugVBO);
-
-	glBindVertexArray(*PhysicsManager::gDebugVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, *PhysicsManager::gDebugVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(LineVertex) * 2 * 1000, nullptr, GL_DYNAMIC_DRAW); // preallocate
-	glEnableVertexAttribArray(0); // position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertex), (void*)0);
-	glEnableVertexAttribArray(1); // color
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertex), (void*)offsetof(LineVertex, color));
-	glBindVertexArray(0);
-}
-
 void PhysicsManager::initCollisionShapes() {
 	spdlog::info("Initializing collision shapes...");
 	
