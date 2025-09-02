@@ -134,6 +134,9 @@
     <None Include="skybox.shader">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="debug.shader">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">

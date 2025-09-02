@@ -30,6 +30,7 @@ namespace ProgramValues {
 		Shader shaderObject;
 		Shader shaderLight;
 		Shader shaderSkybox;
+		Shader shaderDebug;
 	}
 
 	namespace Cameras {

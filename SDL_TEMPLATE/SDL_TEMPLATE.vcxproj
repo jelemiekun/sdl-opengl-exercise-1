@@ -50,6 +50,7 @@
   <ItemGroup>
     <None Include="..\.gitignore" />
     <None Include=".editorconfig" />
+    <None Include="debug.shader" />
     <None Include="light.shader" />
     <None Include="skybox.shader" />
     <None Include="source.shader" />

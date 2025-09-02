@@ -56,6 +56,7 @@ namespace ProgramValues {
 		extern Shader shaderObject;
 		extern Shader shaderLight;
 		extern Shader shaderSkybox;
+		extern Shader shaderDebug;
 	}
 
 	namespace Cameras {

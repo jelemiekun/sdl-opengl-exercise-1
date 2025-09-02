@@ -188,6 +188,8 @@ void GameWindow::render() {
         drawModel(&ProgramValues::GameObjects::cube);
         
         drawModel(&ProgramValues::GameObjects::plane);
+
+        shaderObject->unbind();
     } 
 
     {
@@ -211,6 +213,17 @@ void GameWindow::render() {
 
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
+
+        shaderSkybox->unbind();
+    }
+
+    {
+        Shader* shaderDebug = &ProgramValues::Shaders::shaderDebug;
+        shaderDebug->bind();
+        shaderDebug->setMat4("u_Projection", ProgramValues::GameWindow::projection);
+        shaderDebug->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
+        PhysicsManager::renderDebugLines();
+        shaderDebug->unbind();
     }
 
     game->imGuiWindow->render();

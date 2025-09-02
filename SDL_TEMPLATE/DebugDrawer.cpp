@@ -1,13 +1,13 @@
 #include "DebugDrawer.h"
+#include "PhysicsManager.h"
 
 DebugDrawer::DebugDrawer() : m_debugMode(DBG_DrawWireframe) {}
 
 DebugDrawer::~DebugDrawer() {}
 
 void DebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
-    // Minimal implementation: just print coordinates
-    std::cout << "Draw line from (" << from.x() << ", " << from.y() << ", " << from.z()
-              << ") to (" << to.x() << ", " << to.y() << ", " << to.z() << ")\n";
+    PhysicsManager::gDebugLines.push_back({ glm::vec3(from.x(), from.y(), from.z()), glm::vec3(color.x(), color.y(), color.z()) });
+    PhysicsManager::gDebugLines.push_back({ glm::vec3(to.x(), to.y(), to.z()), glm::vec3(color.x(), color.y(), color.z()) });
 }
 
 void DebugDrawer::drawContactPoint(const btVector3& pointOnB, const btVector3& normalOnB,
