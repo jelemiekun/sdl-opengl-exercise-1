@@ -236,7 +236,6 @@ void ImGuiWindow::render() {
 			}
 
 			switch (item_selected_idx) {
-				case 0: objectModelRef = &ProgramValues::GameObjects::cube;			break;
 					break;
 				default: break;
 			}

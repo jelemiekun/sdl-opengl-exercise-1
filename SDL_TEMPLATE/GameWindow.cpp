@@ -134,9 +134,6 @@ void GameWindow::input(SDL_Event& e) {
 
 void GameWindow::update() {
     PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
-    PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::cube, PhysicsManager::cubeBody);
-    PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::triangle, PhysicsManager::triangleBody);
-    PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::landscape, PhysicsManager::landscapeBody);
 
     if (SDL_GetTicks() > 10000) {
         PhysicsManager::updateExperiment();
@@ -190,14 +187,6 @@ void GameWindow::render() {
         
             modelRef->Draw(*shaderObject);
         };
-
-        drawModel(&ProgramValues::GameObjects::cube);
-
-        drawModel(&ProgramValues::GameObjects::triangle);
-
-        drawModel(&ProgramValues::GameObjects::militaryBackpack);
-
-        drawModel(&ProgramValues::GameObjects::landscape);
 
         shaderObject->unbind();
     } 

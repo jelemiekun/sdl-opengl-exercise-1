@@ -83,11 +83,6 @@ void Game::initShaders() {
 void Game::initModels() {
     spdlog::info("Initializing models...");
 
-    ProgramValues::GameObjects::cube.init("assets/models/Plain_Cube.glb");
-    ProgramValues::GameObjects::triangle.init("assets/models/Plain_Triangle.glb");
-    ProgramValues::GameObjects::landscape.init("assets/models/Scene.glb");
-    ProgramValues::GameObjects::militaryBackpack.init("assets/models/military_backpack/scene.gltf");
-
     spdlog::info("Models initialized successsfully.");
 }
 
