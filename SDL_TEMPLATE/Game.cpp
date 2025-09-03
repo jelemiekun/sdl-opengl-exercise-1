@@ -92,7 +92,7 @@ void Game::initCamera() {
     spdlog::info("Initializing cameras...");
 
     ProgramValues::Cameras::freeFly.init(
-        glm::vec3(20.0f, 26.0f, -17.0f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, 1.0f, 0.0f),
         138.0f,
         -37.0f

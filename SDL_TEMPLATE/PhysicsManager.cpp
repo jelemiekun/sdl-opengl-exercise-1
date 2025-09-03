@@ -52,30 +52,63 @@ void PhysicsManager::updateModelMatrix(Model* model, btRigidBody* body) {
 }
 
 void PhysicsManager::updateCamera() {
-	btTransform transRef = PhysicsManager::getTrans(playerGhostBody);
+    Camera* camera = &ProgramValues::Cameras::freeFly;
 
-	spdlog::info("IsFlying: {}", ProgramValues::GameFlags::isFreeFlying);
-	if (ProgramValues::GameFlags::isFreeFlying) {
-		playerGhostBody->setGravity(btVector3(0, 0, 0));
+    if (!ProgramValues::CameraKeyEvents::isLockedIn)
+        return;
 
-		
-	} else {
-		playerGhostBody->setGravity(gravity);
+    float modifiedSpeed = ProgramValues::CameraKeyEvents::sprinting
+        ? camera->speed * camera->SPRINT_MULTIPLIER
+        : camera->speed;
+
+    if (ProgramValues::GameFlags::isFreeFlying) {
+        // --- FREEFLY MODE ---
+        playerGhostBody->setGravity(btVector3(0, 0, 0));
+        playerGhostBody->clearForces();
+        playerGhostBody->setLinearVelocity(btVector3(0,0,0));
+        playerGhostBody->setAngularVelocity(btVector3(0,0,0));
+
+        // Move camera directly
+        if (ProgramValues::CameraKeyEvents::moveForwardPressed)  camera->position += modifiedSpeed * camera->front;
+        if (ProgramValues::CameraKeyEvents::moveLeftPressed)     camera->position -= glm::normalize(glm::cross(camera->front, camera->up)) * modifiedSpeed;
+        if (ProgramValues::CameraKeyEvents::moveBackwardPressed) camera->position -= modifiedSpeed * camera->front;
+        if (ProgramValues::CameraKeyEvents::moveRightPressed)    camera->position += glm::normalize(glm::cross(camera->front, camera->up)) * modifiedSpeed;
+        if (ProgramValues::CameraKeyEvents::moveUpPressed)       camera->position += camera->speed * camera->up;
+        if (ProgramValues::CameraKeyEvents::moveDownPressed)     camera->position -= camera->speed * camera->up;
+
+        // Sync body to camera
+        playerGhostBody->setWorldTransform(btTransform(
+            btQuaternion(0, 0, 0, 1),
+            btVector3(camera->position.x, camera->position.y, camera->position.z)
+        ));
+    } else {
+        // --- NORMAL PHYSICS MODE ---
+        playerGhostBody->setGravity(gravity);
+
+        btVector3 centralForceDirection(0, 0, 0);
+        float speed = 5.0f;
+
+        if (ProgramValues::CameraKeyEvents::moveForwardPressed)
+			playerGhostBody->applyCentralImpulse(btVector3(0, 0, speed));
+		if (ProgramValues::CameraKeyEvents::moveBackwardPressed)
+			playerGhostBody->applyCentralImpulse(btVector3(0, 0, -speed));
+		if (ProgramValues::CameraKeyEvents::moveLeftPressed)
+			playerGhostBody->applyCentralImpulse(btVector3(speed, 0, 0));
+		if (ProgramValues::CameraKeyEvents::moveRightPressed)
+			playerGhostBody->applyCentralImpulse(btVector3(-speed, 0, 0));
 
 
-	}
+        playerGhostBody->applyCentralForce(centralForceDirection);
 
-	Camera* camera = &ProgramValues::Cameras::freeFly;
-		btTransform trans;
-		trans.setIdentity();
-		trans.setOrigin(btVector3(
-			camera->position.x,
-			camera->position.y,
-			camera->position.z
-		));
+        // Sync camera to body
+        btTransform transRef = PhysicsManager::getTrans(playerGhostBody);
+        btVector3 pos = transRef.getOrigin();
+        camera->position = glm::vec3(pos.x(), pos.y(), pos.z());
+    }
 
-		playerGhostBody->proceedToTransform(trans);
+    camera->updateCameraVectors();
 }
+
 
 void PhysicsManager::updateExperiment() {
 
@@ -149,7 +182,7 @@ void PhysicsManager::initCollisionShapes() {
 
 		landscapeShape = new btBvhTriangleMeshShape(triangleMesh, true);
 
-		float scale = 30.0f;
+		float scale = 60.0f;
 
 		ProgramValues::GameObjects::landscape.scale = scale;
 		landscapeShape->setLocalScaling(btVector3(scale, scale, scale));
@@ -177,6 +210,8 @@ void PhysicsManager::initRigidBodies() {
 		dynamicsWorld->addRigidBody(landscapeBody, 
 			COLLISION_CATEGORIES::ENVIRONMENT,
 			COLLISION_CATEGORIES::PLAYER | COLLISION_CATEGORIES::OBJECTS);
+
+		landscapeBody->setFriction(0.2f);
 	}
 
 	{
@@ -185,8 +220,10 @@ void PhysicsManager::initRigidBodies() {
 		playerShape->calculateLocalInertia(mass, inertia);
 
 		btDefaultMotionState* playerMotion = new btDefaultMotionState(btTransform(
-			btQuaternion(0,0,0,1), btVector3(0, 10.0f, 0)
+			btQuaternion(0,0,0,1), btVector3(10.0f, 13.0f, 0-8.5)
 		));
+
+		// glm::vec3(20.0f, 26.0f, -17.0f),
 
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, playerMotion, playerShape, inertia);
 
@@ -196,6 +233,8 @@ void PhysicsManager::initRigidBodies() {
 			COLLISION_CATEGORIES::PLAYER,
 			COLLISION_CATEGORIES::ENVIRONMENT
 			);
+
+		playerGhostBody->setFriction(0.2f);
 	}
 
 	spdlog::info("Initialized rigid bodies successfully.");

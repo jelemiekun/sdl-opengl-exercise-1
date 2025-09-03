@@ -105,19 +105,6 @@ void Camera::setViewToShader(GLuint shaderID, const std::string& uniformName) co
 
 void Camera::update() {
     SDL_SetRelativeMouseMode(ProgramValues::CameraKeyEvents::isLockedIn ? SDL_TRUE : SDL_FALSE);
-
-    if (ProgramValues::CameraKeyEvents::isLockedIn) {
-        float modifiedSpeed = ProgramValues::CameraKeyEvents::sprinting ? speed * SPRINT_MULTIPLIER : speed;
-
-        if (ProgramValues::CameraKeyEvents::moveForwardPressed)  position += modifiedSpeed * front;
-        if (ProgramValues::CameraKeyEvents::moveLeftPressed)     position -= glm::normalize(glm::cross(front, up)) * modifiedSpeed;
-        if (ProgramValues::CameraKeyEvents::moveBackwardPressed) position -= modifiedSpeed * front;
-        if (ProgramValues::CameraKeyEvents::moveRightPressed)    position += glm::normalize(glm::cross(front, up)) * modifiedSpeed;
-        if (ProgramValues::CameraKeyEvents::moveUpPressed)       position += speed * up;
-        if (ProgramValues::CameraKeyEvents::moveDownPressed)     position -= speed * up;
-
-        updateCameraVectors();
-    }
 }
 
 void Camera::updateCameraVectors() {
