@@ -7,6 +7,12 @@
 class Model;
 class DebugDrawer;
 
+namespace COLLISION_CATEGORIES {
+	const short CUBE = 1 << 0;
+	const short TRIANGLE = 1 << 0;
+	const short PLANE = 1 << 0;
+};
+
 class PhysicsManager {
 public:
 	static void init();
@@ -34,6 +40,7 @@ private:
 	static btConvexHullShape* convexShape;
 	static btCompoundShape* landscapeShape;
 	static btBvhTriangleMeshShape* landscapeConcaveShape;
+	static btConvexShape* militaryBackpackShape;
 
 public:
 	static btRigidBody* cubeBody;

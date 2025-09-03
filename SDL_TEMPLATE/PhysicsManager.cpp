@@ -179,7 +179,10 @@ void PhysicsManager::initRigidBodies() {
 		cubeBody->applyCentralImpulse(btVector3(8.0f, 0.0f, 0.0f));
 		cubeBody->setFriction(4.5f);
 
-		dynamicsWorld->addRigidBody(cubeBody);
+		dynamicsWorld->addRigidBody(cubeBody, 
+			COLLISION_CATEGORIES::CUBE, 
+			COLLISION_CATEGORIES::PLANE |
+			COLLISION_CATEGORIES::TRIANGLE);
 	}
 
 	{
@@ -191,7 +194,10 @@ void PhysicsManager::initRigidBodies() {
 		landscapeBody = new btRigidBody(rbInfo);
 
 		// --- 4. Add rigid body to the world ---
-		dynamicsWorld->addRigidBody(landscapeBody);
+		dynamicsWorld->addRigidBody(landscapeBody,
+			COLLISION_CATEGORIES::PLANE, 
+			COLLISION_CATEGORIES::TRIANGLE |
+			COLLISION_CATEGORIES::CUBE);
 	}
 
 	{
@@ -206,7 +212,10 @@ void PhysicsManager::initRigidBodies() {
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, convexShape, localInertia);
 		triangleBody = new btRigidBody(rbInfo);
 
-		dynamicsWorld->addRigidBody(triangleBody);
+		dynamicsWorld->addRigidBody(triangleBody,
+			COLLISION_CATEGORIES::TRIANGLE, 
+			COLLISION_CATEGORIES::PLANE |
+			COLLISION_CATEGORIES::CUBE);
 
 	}
 
