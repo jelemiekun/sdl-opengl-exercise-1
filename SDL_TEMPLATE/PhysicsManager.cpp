@@ -14,7 +14,7 @@ btDiscreteDynamicsWorld* PhysicsManager::dynamicsWorld = nullptr;
 
 DebugDrawer* PhysicsManager::debugDrawer = nullptr;
 
-btBoxShape* PhysicsManager::playerShape = nullptr;
+btCapsuleShape* PhysicsManager::playerShape = nullptr;
 btBvhTriangleMeshShape* PhysicsManager::landscapeShape = nullptr;
 
 btRigidBody* PhysicsManager::playerGhostBody = nullptr;
@@ -58,17 +58,14 @@ void PhysicsManager::updateCamera() {
         return;
 
     float modifiedSpeed = ProgramValues::CameraKeyEvents::sprinting
-        ? camera->speed * camera->SPRINT_MULTIPLIER
-        : camera->speed;
+        ? camera->speed * camera->SPRINT_MULTIPLIER: camera->speed;
 
     if (ProgramValues::GameFlags::isFreeFlying) {
-        // --- FREEFLY MODE ---
         playerGhostBody->setGravity(btVector3(0, 0, 0));
         playerGhostBody->clearForces();
         playerGhostBody->setLinearVelocity(btVector3(0,0,0));
         playerGhostBody->setAngularVelocity(btVector3(0,0,0));
 
-        // Move camera directly
         if (ProgramValues::CameraKeyEvents::moveForwardPressed)  camera->position += modifiedSpeed * camera->front;
         if (ProgramValues::CameraKeyEvents::moveLeftPressed)     camera->position -= glm::normalize(glm::cross(camera->front, camera->up)) * modifiedSpeed;
         if (ProgramValues::CameraKeyEvents::moveBackwardPressed) camera->position -= modifiedSpeed * camera->front;
@@ -76,35 +73,51 @@ void PhysicsManager::updateCamera() {
         if (ProgramValues::CameraKeyEvents::moveUpPressed)       camera->position += camera->speed * camera->up;
         if (ProgramValues::CameraKeyEvents::moveDownPressed)     camera->position -= camera->speed * camera->up;
 
-        // Sync body to camera
         playerGhostBody->setWorldTransform(btTransform(
             btQuaternion(0, 0, 0, 1),
             btVector3(camera->position.x, camera->position.y, camera->position.z)
         ));
     } else {
-        // --- NORMAL PHYSICS MODE ---
+        playerGhostBody->activate(true);
         playerGhostBody->setGravity(gravity);
 
-        btVector3 centralForceDirection(0, 0, 0);
-        float speed = 5.0f;
+        static float speed = 7.0f;
+		static float jumpSpeed = 2.85f;
 
-        if (ProgramValues::CameraKeyEvents::moveForwardPressed)
-			playerGhostBody->applyCentralImpulse(btVector3(0, 0, speed));
-		if (ProgramValues::CameraKeyEvents::moveBackwardPressed)
-			playerGhostBody->applyCentralImpulse(btVector3(0, 0, -speed));
-		if (ProgramValues::CameraKeyEvents::moveLeftPressed)
-			playerGhostBody->applyCentralImpulse(btVector3(speed, 0, 0));
-		if (ProgramValues::CameraKeyEvents::moveRightPressed)
-			playerGhostBody->applyCentralImpulse(btVector3(-speed, 0, 0));
+        btVector3 forward(camera->front.x, 0, camera->front.z);
+        forward.normalize();
 
+        btVector3 right = btVector3(camera->front.z, 0, -camera->front.x);
+        right.normalize();
 
-        playerGhostBody->applyCentralForce(centralForceDirection);
+        btVector3 desiredVelocity(0, playerGhostBody->getLinearVelocity().y(), 0);
 
-        // Sync camera to body
+        if (ProgramValues::CameraKeyEvents::moveForwardPressed) {
+            desiredVelocity += forward * speed;
+        }
+        if (ProgramValues::CameraKeyEvents::moveBackwardPressed) {
+            desiredVelocity -= forward * speed;
+        }
+        if (ProgramValues::CameraKeyEvents::moveLeftPressed) {
+            desiredVelocity += right * speed;
+        }
+        if (ProgramValues::CameraKeyEvents::moveRightPressed) {
+            desiredVelocity -= right * speed;
+        }
+
+        playerGhostBody->setLinearVelocity(desiredVelocity);
+
+		if (ProgramValues::CameraKeyEvents::moveUpPressed) {
+			btVector3 vel = playerGhostBody->getLinearVelocity();
+			vel.setY(jumpSpeed); // set upward jump velocity
+			playerGhostBody->setLinearVelocity(vel);
+		}
+
         btTransform transRef = PhysicsManager::getTrans(playerGhostBody);
         btVector3 pos = transRef.getOrigin();
         camera->position = glm::vec3(pos.x(), pos.y(), pos.z());
     }
+
 
     camera->updateCameraVectors();
 }
@@ -182,14 +195,14 @@ void PhysicsManager::initCollisionShapes() {
 
 		landscapeShape = new btBvhTriangleMeshShape(triangleMesh, true);
 
-		float scale = 60.0f;
+		float scale = 120.0f;
 
 		ProgramValues::GameObjects::landscape.scale = scale;
 		landscapeShape->setLocalScaling(btVector3(scale, scale, scale));
 	}
 
 	{
-		playerShape = new btBoxShape(btVector3(0.4f, 0.8f, 0.4f));
+		playerShape = new btCapsuleShape(btScalar(0.2f), btScalar(0.8f));
 	}
 	
 	spdlog::info("Initialized collision shapes successfully.");
@@ -211,7 +224,7 @@ void PhysicsManager::initRigidBodies() {
 			COLLISION_CATEGORIES::ENVIRONMENT,
 			COLLISION_CATEGORIES::PLAYER | COLLISION_CATEGORIES::OBJECTS);
 
-		landscapeBody->setFriction(0.2f);
+		landscapeBody->setFriction(1.0f);
 	}
 
 	{
@@ -234,7 +247,10 @@ void PhysicsManager::initRigidBodies() {
 			COLLISION_CATEGORIES::ENVIRONMENT
 			);
 
-		playerGhostBody->setFriction(0.2f);
+		playerGhostBody->setFriction(1.0f);
+		playerGhostBody->setAngularFactor(btVector3(0,0,0));
+		playerGhostBody->setRollingFriction(1.0f);
+		playerGhostBody->setSpinningFriction(1.0f);
 	}
 
 	spdlog::info("Initialized rigid bodies successfully.");

@@ -18,8 +18,8 @@ namespace ProgramValues {
 			0.0f
 		);
 
-		int width = 720;
-		int height = 480;
+		int width = 1080;
+		int height = 720;
 		int FPS_LIMIT = 60;
 		int FPS = 0;
 		float deltaTime = 0.0f;

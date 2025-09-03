@@ -146,14 +146,16 @@ void GameWindow::input(SDL_Event& e) {
 }
 
 void GameWindow::update() {
-    PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
-    PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::landscape, PhysicsManager::landscapeBody);
-    PhysicsManager::updateCamera();
+    if (ProgramValues::CameraKeyEvents::isLockedIn) {
+        PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
+        PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::landscape, PhysicsManager::landscapeBody);
+        PhysicsManager::updateCamera();
 
-    if (SDL_GetTicks() > 10000) {
-        PhysicsManager::updateExperiment();
+        if (SDL_GetTicks() > 10000) {
+            PhysicsManager::updateExperiment();
+        }
+        // PhysicsManager::getWorld()->debugDrawWorld();
     }
-    // PhysicsManager::getWorld()->debugDrawWorld();
 
     ProgramValues::Cameras::cameraReference->update();
 

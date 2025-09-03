@@ -37,7 +37,7 @@ private:
 	static void initRigidBodies();
 
 private:
-	static btBoxShape* playerShape;
+	static btCapsuleShape* playerShape;
 	static btBvhTriangleMeshShape* landscapeShape;
 
 public:
