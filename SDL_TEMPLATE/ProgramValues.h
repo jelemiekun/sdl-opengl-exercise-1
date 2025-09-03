@@ -63,11 +63,11 @@ namespace ProgramValues {
 		// TODO: use camera reference
 		extern Camera freeFly;
 		extern Camera camera1;
-
 	}
 
 	namespace GameObjects {
 		extern Model* modelRef;
+		extern Model landscape;
 	}
 
 	namespace CameraKeyEvents {
@@ -95,5 +95,10 @@ namespace ProgramValues {
 
 	namespace VertexArray {
 		extern unsigned int skyboxVAO;
+	}
+
+	namespace GameFlags {
+		extern bool isFreeFlying;
+		extern bool isFreeFlyingPressed;
 	}
 };

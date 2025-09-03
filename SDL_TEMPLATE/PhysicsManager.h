@@ -8,7 +8,9 @@ class Model;
 class DebugDrawer;
 
 namespace COLLISION_CATEGORIES {
-
+	const short ENVIRONMENT = 1;
+	const short PLAYER = 2;
+	const short OBJECTS = 3;
 };
 
 class PhysicsManager {
@@ -16,6 +18,7 @@ public:
 	static void init();
 	static void update(const float deltaTime);
 	static void updateModelMatrix(Model* model, btRigidBody* body);
+	static void updateCamera();
 	static void updateExperiment();
 
 	static inline btVector3 getGravity() { return gravity; }
@@ -34,7 +37,11 @@ private:
 	static void initRigidBodies();
 
 private:
+	static btBoxShape* playerShape;
+	static btBvhTriangleMeshShape* landscapeShape;
 
 public:
+	static btRigidBody* landscapeBody;
+	static btRigidBody* playerGhostBody;
 };
 

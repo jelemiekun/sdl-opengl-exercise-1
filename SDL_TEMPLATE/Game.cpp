@@ -83,6 +83,8 @@ void Game::initShaders() {
 void Game::initModels() {
     spdlog::info("Initializing models...");
 
+    ProgramValues::GameObjects::landscape.init("assets/models/big_landscape.glb");
+
     spdlog::info("Models initialized successsfully.");
 }
 

@@ -3,6 +3,7 @@
 #include "ProgramValues.h"
 #include "Model.h"
 #include "Mesh.h"
+#include "Camera.h"
 #include "DebugDrawer.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -12,6 +13,12 @@
 btDiscreteDynamicsWorld* PhysicsManager::dynamicsWorld = nullptr;
 
 DebugDrawer* PhysicsManager::debugDrawer = nullptr;
+
+btBoxShape* PhysicsManager::playerShape = nullptr;
+btBvhTriangleMeshShape* PhysicsManager::landscapeShape = nullptr;
+
+btRigidBody* PhysicsManager::playerGhostBody = nullptr;
+btRigidBody* PhysicsManager::landscapeBody = nullptr;
 
 btVector3 PhysicsManager::gravity = btVector3(0, -9.8f, 0);
 
@@ -42,6 +49,32 @@ void PhysicsManager::updateModelMatrix(Model* model, btRigidBody* body) {
         glm::translate(glm::mat4(1.0f), cubePos) *
         glm::mat4_cast(glmQuat) *
         glm::scale(glm::mat4(1.0f), glm::vec3(model->scale));
+}
+
+void PhysicsManager::updateCamera() {
+	btTransform transRef = PhysicsManager::getTrans(playerGhostBody);
+
+	spdlog::info("IsFlying: {}", ProgramValues::GameFlags::isFreeFlying);
+	if (ProgramValues::GameFlags::isFreeFlying) {
+		playerGhostBody->setGravity(btVector3(0, 0, 0));
+
+		
+	} else {
+		playerGhostBody->setGravity(gravity);
+
+
+	}
+
+	Camera* camera = &ProgramValues::Cameras::freeFly;
+		btTransform trans;
+		trans.setIdentity();
+		trans.setOrigin(btVector3(
+			camera->position.x,
+			camera->position.y,
+			camera->position.z
+		));
+
+		playerGhostBody->proceedToTransform(trans);
 }
 
 void PhysicsManager::updateExperiment() {
@@ -95,6 +128,36 @@ void PhysicsManager::initDebugger() {
 }
 void PhysicsManager::initCollisionShapes() {
 	spdlog::info("Initializing collision shapes...");
+
+	{
+		btTriangleMesh* triangleMesh = new btTriangleMesh;
+
+		Model* model = &ProgramValues::GameObjects::landscape;
+		for (auto& mesh : model->meshes) {
+			for (size_t i = 0; i < mesh.indices.size(); i += 3) {
+				glm::vec4 v0 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i]].Position, 1.0f);
+				glm::vec4 v1 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i + 1]].Position, 1.0f);
+				glm::vec4 v2 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i + 2]].Position, 1.0f);
+
+				triangleMesh->addTriangle(
+					btVector3(v0.x, v0.y, v0.z),
+					btVector3(v1.x, v1.y, v1.z),
+					btVector3(v2.x, v2.y, v2.z)
+				);
+			}
+		}
+
+		landscapeShape = new btBvhTriangleMeshShape(triangleMesh, true);
+
+		float scale = 30.0f;
+
+		ProgramValues::GameObjects::landscape.scale = scale;
+		landscapeShape->setLocalScaling(btVector3(scale, scale, scale));
+	}
+
+	{
+		playerShape = new btBoxShape(btVector3(0.4f, 0.8f, 0.4f));
+	}
 	
 	spdlog::info("Initialized collision shapes successfully.");
 }
@@ -102,6 +165,38 @@ void PhysicsManager::initCollisionShapes() {
 void PhysicsManager::initRigidBodies() {
 	spdlog::info("Initializing rigid bodies...");
 
+	{
+		btScalar mass(0.0f);
+		btVector3 inertia(0, 0, 0);
+
+		btDefaultMotionState* motionState = new btDefaultMotionState(btTransform::getIdentity());
+		btRigidBody::btRigidBodyConstructionInfo RBInfo(mass, motionState, landscapeShape, inertia);
+
+		landscapeBody = new btRigidBody(RBInfo);
+
+		dynamicsWorld->addRigidBody(landscapeBody, 
+			COLLISION_CATEGORIES::ENVIRONMENT,
+			COLLISION_CATEGORIES::PLAYER | COLLISION_CATEGORIES::OBJECTS);
+	}
+
+	{
+		btScalar mass = 60.0f;
+		btVector3 inertia(0, 0, 0);
+		playerShape->calculateLocalInertia(mass, inertia);
+
+		btDefaultMotionState* playerMotion = new btDefaultMotionState(btTransform(
+			btQuaternion(0,0,0,1), btVector3(0, 10.0f, 0)
+		));
+
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, playerMotion, playerShape, inertia);
+
+		playerGhostBody = new btRigidBody(rbInfo);
+
+		dynamicsWorld->addRigidBody(playerGhostBody,
+			COLLISION_CATEGORIES::PLAYER,
+			COLLISION_CATEGORIES::ENVIRONMENT
+			);
+	}
 
 	spdlog::info("Initialized rigid bodies successfully.");
 }

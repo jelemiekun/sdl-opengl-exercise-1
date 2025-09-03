@@ -40,6 +40,7 @@ namespace ProgramValues {
 
 	namespace GameObjects {
 		Model* modelRef = nullptr;
+		Model landscape;
 	}
 
 	namespace CameraKeyEvents {
@@ -84,5 +85,10 @@ namespace ProgramValues {
 
 	namespace VertexArray {
 		unsigned int skyboxVAO;
+	}
+
+	namespace GameFlags {
+		bool isFreeFlying = false;
+		bool isFreeFlyingPressed = false;
 	}
 }
