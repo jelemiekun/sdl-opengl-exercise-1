@@ -55,9 +55,18 @@ void PhysicsManager::updateModelMatrix(Model* model, btRigidBody* body) {
 
 void PhysicsManager::updateExperiment() {
 	static bool hasChanged = false;
-	cubeBody->applyTorque(btVector3(2,4,6));
+	cubeBody->applyTorque(btVector3(4,8,12));
+	triangleBody->applyTorque(btVector3(9, 18, 27));
 	if (!hasChanged) {
-		cubeBody->clearForces();
+		ProgramValues::GameObjects::triangle.scale = 5.0f;
+		convexShape->setLocalScaling(btVector3(5.0f, 5.0f, 5.0f));
+
+		btScalar mass(1.0f);
+		btVector3 inertia(0, 0, 0);
+		convexShape->calculateLocalInertia(mass, inertia);
+		
+		triangleBody->setMassProps(mass, inertia);
+		triangleBody->updateInertiaTensor();
 
 		hasChanged = true;
 	}
@@ -191,7 +200,7 @@ void PhysicsManager::initRigidBodies() {
 		convexShape->calculateLocalInertia(mass, localInertia);
 
 		btDefaultMotionState* motionState = new btDefaultMotionState(
-			btTransform(btQuaternion(0,0,0,1), btVector3(0,10,0))
+			btTransform(btQuaternion(0,0,0,1), btVector3(0,20,0))
 		);
 
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, convexShape, localInertia);

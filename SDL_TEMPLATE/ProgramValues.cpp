@@ -43,6 +43,7 @@ namespace ProgramValues {
 		Model cube;
 		Model triangle;
 		Model landscape;
+		Model militaryBackpack;
 	}
 
 	namespace CameraKeyEvents {

@@ -138,7 +138,7 @@ void GameWindow::update() {
     PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::triangle, PhysicsManager::triangleBody);
     PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::landscape, PhysicsManager::landscapeBody);
 
-    if (SDL_GetTicks() > 5000) {
+    if (SDL_GetTicks() > 10000) {
         PhysicsManager::updateExperiment();
     }
     // PhysicsManager::getWorld()->debugDrawWorld();
@@ -194,6 +194,8 @@ void GameWindow::render() {
         drawModel(&ProgramValues::GameObjects::cube);
 
         drawModel(&ProgramValues::GameObjects::triangle);
+
+        drawModel(&ProgramValues::GameObjects::militaryBackpack);
 
         drawModel(&ProgramValues::GameObjects::landscape);
 

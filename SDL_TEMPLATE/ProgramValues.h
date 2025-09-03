@@ -71,6 +71,7 @@ namespace ProgramValues {
 		extern Model cube;
 		extern Model triangle;
 		extern Model landscape;
+		extern Model militaryBackpack;
 	}
 
 	namespace CameraKeyEvents {
