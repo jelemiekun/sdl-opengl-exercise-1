@@ -31,12 +31,13 @@ private:
 
 private:
 	static btCollisionShape* cubeShape;
-	static btCollisionShape* planeShape;
 	static btConvexHullShape* convexShape;
+	static btCompoundShape* landscapeShape;
+	static btBvhTriangleMeshShape* landscapeConcaveShape;
 
 public:
 	static btRigidBody* cubeBody;
-	static btRigidBody* planeBody;
+	static btRigidBody* landscapeBody;
 	static btRigidBody* triangleBody;
 };
 

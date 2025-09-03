@@ -83,9 +83,9 @@ void Game::initShaders() {
 void Game::initModels() {
     spdlog::info("Initializing models...");
 
-    ProgramValues::GameObjects::plane.init("assets/models/Plain_Plane.glb");
     ProgramValues::GameObjects::cube.init("assets/models/Plain_Cube.glb");
     ProgramValues::GameObjects::triangle.init("assets/models/Plain_Triangle.glb");
+    ProgramValues::GameObjects::landscape.init("assets/models/Scene.glb");
 
     spdlog::info("Models initialized successsfully.");
 }
@@ -206,8 +206,7 @@ void Game::initPhysicsManager() {
 }
 
 void Game::preTransformObjects() {
-    ProgramValues::GameObjects::plane.scale = 5.0f;
-    ProgramValues::GameObjects::plane.updateModelMatrix();
+
 }
 
 void Game::initializeEverything() {

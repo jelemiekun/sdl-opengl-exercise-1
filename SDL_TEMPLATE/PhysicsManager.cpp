@@ -14,12 +14,13 @@ btDiscreteDynamicsWorld* PhysicsManager::dynamicsWorld = nullptr;
 DebugDrawer* PhysicsManager::debugDrawer = nullptr;
 
 btCollisionShape* PhysicsManager::cubeShape = nullptr;
-btCollisionShape* PhysicsManager::planeShape = nullptr;
 btConvexHullShape* PhysicsManager::convexShape = nullptr;
+btCompoundShape* PhysicsManager::landscapeShape = nullptr;
+btBvhTriangleMeshShape* PhysicsManager::landscapeConcaveShape = nullptr;
 
 btRigidBody* PhysicsManager::cubeBody = nullptr;
-btRigidBody* PhysicsManager::planeBody = nullptr;
 btRigidBody* PhysicsManager::triangleBody = nullptr;
+btRigidBody* PhysicsManager::landscapeBody = nullptr;
 
 btVector3 PhysicsManager::gravity = btVector3(0, -9.8f, 0);
 
@@ -111,7 +112,6 @@ void PhysicsManager::initCollisionShapes() {
 	spdlog::info("Initializing collision shapes...");
 	
 	cubeShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
-	planeShape = new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), 0);
 	convexShape = new btConvexHullShape;
 
 	{
@@ -123,6 +123,29 @@ void PhysicsManager::initCollisionShapes() {
 			}
 		}
 
+	}
+
+	landscapeShape = new btCompoundShape;
+
+	{
+		btTriangleMesh* triangleMesh = new btTriangleMesh;
+
+		Model* triangle = &ProgramValues::GameObjects::landscape;
+		for (auto& mesh : triangle->meshes) {
+			for (size_t i = 0; i < mesh.indices.size(); i += 3) {
+				glm::vec4 v0 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i]].Position, 1.0f);
+				glm::vec4 v1 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i + 1]].Position, 1.0f);
+				glm::vec4 v2 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i + 2]].Position, 1.0f);
+
+				triangleMesh->addTriangle(
+					btVector3(v0.x, v0.y, v0.z),
+					btVector3(v1.x, v1.y, v1.z),
+					btVector3(v2.x, v2.y, v2.z)
+				);
+			}
+		}
+
+		landscapeConcaveShape = new btBvhTriangleMeshShape(triangleMesh, true);
 	}
 
 	spdlog::info("Initialized collision shapes successfully.");
@@ -144,23 +167,22 @@ void PhysicsManager::initRigidBodies() {
 		btRigidBody::btRigidBodyConstructionInfo cubeRBInfo(mass, cubeMotion, cubeShape, inertia);
 		cubeBody = new btRigidBody(cubeRBInfo);
 		cubeBody->setRestitution(0.5f);
-		//cubeBody->applyCentralImpulse(btVector3(10.0f, 0.0f, 0.0f));
+		cubeBody->applyCentralImpulse(btVector3(8.0f, 0.0f, 0.0f));
 		cubeBody->setFriction(4.5f);
 
 		dynamicsWorld->addRigidBody(cubeBody);
 	}
 
 	{
-		btDefaultMotionState* planeMotion = new btDefaultMotionState(btTransform(
-			btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)
-		));
+		btScalar mass = 0.0f;
+		btVector3 inertia(0.0f, 0.0f, 0.0f);
 
-		btRigidBody::btRigidBodyConstructionInfo planeRBInfo(0, planeMotion, planeShape, btVector3(0, 0, 0));
-		planeBody = new btRigidBody(planeRBInfo);
-		planeBody->setRestitution(1.0f);
-		planeBody->setFriction(2.0f);
+		btDefaultMotionState* motionState = new btDefaultMotionState(btTransform::getIdentity());
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, landscapeConcaveShape, inertia);
+		landscapeBody = new btRigidBody(rbInfo);
 
-		dynamicsWorld->addRigidBody(planeBody);
+		// --- 4. Add rigid body to the world ---
+		dynamicsWorld->addRigidBody(landscapeBody);
 	}
 
 	{

@@ -39,10 +39,10 @@ namespace ProgramValues {
 	}
 
 	namespace GameObjects {
-		Model* modelRef = &plane;
-		Model plane;
+		Model* modelRef = &cube;
 		Model cube;
 		Model triangle;
+		Model landscape;
 	}
 
 	namespace CameraKeyEvents {
