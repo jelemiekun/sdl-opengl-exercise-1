@@ -47,6 +47,12 @@ void Camera::processKeyboard(SDL_Event& event, GameWindow* window) {
             case SDLK_LCTRL: ProgramValues::CameraKeyEvents::moveDownPressed     = true; break;
             case SDLK_r:     ProgramValues::CameraKeyEvents::sprinting           = true; break;
             case SDLK_LSHIFT:ProgramValues::CameraKeyEvents::fastZoom            = true; break;
+            case SDLK_f: {
+                 if (!ProgramValues::GameFlags::isFreeFlyingPressed) {
+                    ProgramValues::GameFlags::isFreeFlying = !ProgramValues::GameFlags::isFreeFlying;
+                    ProgramValues::GameFlags::isFreeFlyingPressed = true;
+                }
+            } break;
             default: break;
         }
     } else if (event.type == SDL_KEYUP) {
@@ -64,6 +70,10 @@ void Camera::processKeyboard(SDL_Event& event, GameWindow* window) {
             case SDLK_LCTRL: ProgramValues::CameraKeyEvents::moveDownPressed     = false; break;
             case SDLK_r:     ProgramValues::CameraKeyEvents::sprinting           = false; break;
             case SDLK_LSHIFT:ProgramValues::CameraKeyEvents::fastZoom            = false; break;
+            case SDLK_f: {
+                if (ProgramValues::GameFlags::isFreeFlyingPressed)
+                    ProgramValues::GameFlags::isFreeFlyingPressed = false;
+            } break;
             default: break;
         }
     }

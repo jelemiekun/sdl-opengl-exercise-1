@@ -121,19 +121,6 @@ void GameWindow::handleWindowEvents(SDL_Event& e) {
         toggleFullscreen();
         spdlog::info("Toggled fullscreen mode");
     }
-
-    if (e.type == SDL_KEYDOWN) {
-        if (e.key.keysym.sym == SDLK_f && !ProgramValues::GameFlags::isFreeFlyingPressed) {
-            ProgramValues::GameFlags::isFreeFlying = !ProgramValues::GameFlags::isFreeFlying;
-            ProgramValues::GameFlags::isFreeFlyingPressed = true;
-        }
-    }
-
-    if (e.type == SDL_KEYUP) {
-        if (e.key.keysym.sym == SDLK_f && ProgramValues::GameFlags::isFreeFlyingPressed) {
-            ProgramValues::GameFlags::isFreeFlyingPressed = false;
-        }
-    }
 }
 
 
