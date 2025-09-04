@@ -16,11 +16,14 @@ DebugDrawer* PhysicsManager::debugDrawer = nullptr;
 
 btCapsuleShape* PhysicsManager::playerShape = nullptr;
 btBvhTriangleMeshShape* PhysicsManager::landscapeShape = nullptr;
+btStaticPlaneShape* PhysicsManager::voidPlaneShape = nullptr;
 
 btRigidBody* PhysicsManager::playerGhostBody = nullptr;
 btRigidBody* PhysicsManager::landscapeBody = nullptr;
+btRigidBody* PhysicsManager::voidPlaneBody = nullptr;
 
 btVector3 PhysicsManager::gravity = btVector3(0, -9.8f, 0);
+btVector3 PhysicsManager::playerStartingPosition = btVector3(10.0f, 13.0f, -8.5);
 
 void PhysicsManager::init() {
 	initPhysicsWorld();
@@ -157,20 +160,33 @@ void PhysicsManager::updateCollisions() {
 		char* name0 = static_cast<char*>(obj0->getUserPointer());
 		char* name1 = static_cast<char*>(obj1->getUserPointer());
 
-		if (!name0 || !name1) continue;
-
-		spdlog::info("{}, {}", name0, name1);
+		if (!name0 || !name1) {
+			spdlog::info("One or two object collided has no name.");
+			continue;
+		}
 		
 		{
 			bool playerAndLandScape = (name0 == "PLAYER" && name1 == "LANDSCAPE") ||
 				(name0 == "LANDSCAPE" && name1 == "PLAYER");
 
-			if (playerAndLandScape && hasCollision) {
-				ProgramValues::CameraKeyEvents::isOnJump = false;
-			} else if (playerAndLandScape && !hasCollision) {
-				ProgramValues::CameraKeyEvents::isOnJump = true;
-			}
+			if (playerAndLandScape) ProgramValues::CameraKeyEvents::isOnJump = !hasCollision;
+		}
 
+		{
+			bool playerAndVoidPlane = (name0 == "PLAYER" && name1 == "VOID_PLANE") ||
+				(name0 == "VOID_PLANE" && name1 == "PLAYER");
+
+			if (playerAndVoidPlane && hasCollision) {
+				btTransform trans;
+				trans.setIdentity();
+				trans.setOrigin(playerStartingPosition);
+				playerGhostBody->setWorldTransform(trans);
+
+				Camera* camera = &ProgramValues::Cameras::freeFly;
+				btTransform transRef = PhysicsManager::getTrans(playerGhostBody);
+				btVector3 pos = transRef.getOrigin();
+				camera->position = glm::vec3(pos.x(), pos.y(), pos.z());
+			}
 		}
 
 	}
@@ -253,6 +269,13 @@ void PhysicsManager::initCollisionShapes() {
 	{
 		playerShape = new btCapsuleShape(btScalar(0.2f), btScalar(0.8f));
 	}
+
+	{
+		voidPlaneShape = new btStaticPlaneShape(
+			btVector3(0,1,0),
+			btScalar(-100)
+		);
+	}
 	
 	spdlog::info("Initialized collision shapes successfully.");
 }
@@ -283,7 +306,7 @@ void PhysicsManager::initRigidBodies() {
 		playerShape->calculateLocalInertia(mass, inertia);
 
 		btDefaultMotionState* playerMotion = new btDefaultMotionState(btTransform(
-			btQuaternion(0,0,0,1), btVector3(10.0f, 13.0f, 0-8.5)
+			btQuaternion(0,0,0,1), playerStartingPosition
 		));
 
 		// glm::vec3(20.0f, 26.0f, -17.0f),
@@ -294,7 +317,8 @@ void PhysicsManager::initRigidBodies() {
 
 		dynamicsWorld->addRigidBody(playerGhostBody,
 			COLLISION_CATEGORIES::PLAYER,
-			COLLISION_CATEGORIES::ENVIRONMENT
+			COLLISION_CATEGORIES::ENVIRONMENT |
+			COLLISION_CATEGORIES::VOID_PLANE
 			);
 
 		playerGhostBody->setFriction(1.0f);
@@ -302,6 +326,18 @@ void PhysicsManager::initRigidBodies() {
 		playerGhostBody->setRollingFriction(1.0f);
 		playerGhostBody->setSpinningFriction(1.0f);
 		playerGhostBody->setUserPointer((void*)"PLAYER");
+	}
+
+	{
+		btDefaultMotionState* motionState = new btDefaultMotionState(btTransform::getIdentity());
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(0.0f, motionState, voidPlaneShape, btVector3(0, 0, 0));
+		voidPlaneBody = new btRigidBody(rbInfo);
+
+		dynamicsWorld->addRigidBody(voidPlaneBody, 
+			COLLISION_CATEGORIES::VOID_PLANE,
+			COLLISION_CATEGORIES::PLAYER | COLLISION_CATEGORIES::OBJECTS);
+		
+		voidPlaneBody->setUserPointer((void*)"VOID_PLANE");
 	}
 
 	spdlog::info("Initialized rigid bodies successfully.");

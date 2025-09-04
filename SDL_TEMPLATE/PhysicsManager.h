@@ -8,9 +8,10 @@ class Model;
 class DebugDrawer;
 
 namespace COLLISION_CATEGORIES {
-	const short ENVIRONMENT = 1;
-	const short PLAYER = 2;
-	const short OBJECTS = 3;
+	const short ENVIRONMENT		= 1 << 0;
+	const short PLAYER			= 1 << 1;
+	const short OBJECTS			= 1 << 2;
+	const short VOID_PLANE		= 1 << 3;
 };
 
 class PhysicsManager {
@@ -26,6 +27,7 @@ public:
 
 private:
 	static btVector3 gravity;
+	static btVector3 playerStartingPosition;
 	static btDiscreteDynamicsWorld* dynamicsWorld;
 	static DebugDrawer* debugDrawer;
 
@@ -41,9 +43,11 @@ private:
 private:
 	static btCapsuleShape* playerShape;
 	static btBvhTriangleMeshShape* landscapeShape;
+	static btStaticPlaneShape* voidPlaneShape;
 
 public:
 	static btRigidBody* landscapeBody;
 	static btRigidBody* playerGhostBody;
+	static btRigidBody* voidPlaneBody;
 };
 
