@@ -149,11 +149,7 @@ void GameWindow::update() {
     if (ProgramValues::CameraKeyEvents::isLockedIn) {
         PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
         PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::landscape, PhysicsManager::landscapeBody);
-        PhysicsManager::updateCamera();
-
-        if (SDL_GetTicks() > 10000) {
-            PhysicsManager::updateExperiment();
-        }
+        
         // PhysicsManager::getWorld()->debugDrawWorld();
     }
 

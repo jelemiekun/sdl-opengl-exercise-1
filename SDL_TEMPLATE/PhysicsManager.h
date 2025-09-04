@@ -18,8 +18,6 @@ public:
 	static void init();
 	static void update(const float deltaTime);
 	static void updateModelMatrix(Model* model, btRigidBody* body);
-	static void updateCamera();
-	static void updateExperiment();
 
 	static inline btVector3 getGravity() { return gravity; }
 	static btDiscreteDynamicsWorld* getWorld();
@@ -35,6 +33,10 @@ private:
 	static void initDebugger();
 	static void initCollisionShapes();
 	static void initRigidBodies();
+
+	static void updateCamera();
+	static void updateExperiment();
+	static void updateCollisions();
 
 private:
 	static btCapsuleShape* playerShape;

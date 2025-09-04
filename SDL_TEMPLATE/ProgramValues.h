@@ -81,6 +81,7 @@ namespace ProgramValues {
 		extern bool moveDownPressed;
 		extern bool sprinting;
 		extern bool fastZoom;
+		extern bool isOnJump;
 	}
 
 	namespace Lights {

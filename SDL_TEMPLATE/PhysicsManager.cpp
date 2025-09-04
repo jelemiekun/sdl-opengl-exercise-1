@@ -31,6 +31,10 @@ void PhysicsManager::init() {
 
 void PhysicsManager::update(const float deltaTime) {
 	dynamicsWorld->stepSimulation(deltaTime, 10);
+
+	if (SDL_GetTicks() > 10000) PhysicsManager::updateExperiment();
+	updateCamera();
+	updateCollisions();
 }
 
 void PhysicsManager::updateModelMatrix(Model* model, btRigidBody* body) {
@@ -107,9 +111,10 @@ void PhysicsManager::updateCamera() {
 
         playerGhostBody->setLinearVelocity(desiredVelocity);
 
-		if (ProgramValues::CameraKeyEvents::moveUpPressed) {
+		if (ProgramValues::CameraKeyEvents::moveUpPressed &&
+			!ProgramValues::CameraKeyEvents::isOnJump) {
 			btVector3 vel = playerGhostBody->getLinearVelocity();
-			vel.setY(jumpSpeed); // set upward jump velocity
+			vel.setY(jumpSpeed);
 			playerGhostBody->setLinearVelocity(vel);
 		}
 
@@ -125,6 +130,50 @@ void PhysicsManager::updateCamera() {
 
 void PhysicsManager::updateExperiment() {
 
+}
+
+void PhysicsManager::updateCollisions() {
+	int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+	for (int i = 0; i < numManifolds; i++) {
+		btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+
+		bool hasCollision = false;
+		int numContacts = contactManifold->getNumContacts();
+
+		for (int j = 0; j < numContacts; j++) {
+			btManifoldPoint& pt = contactManifold->getContactPoint(j);
+
+			if (pt.getDistance() < 0.0f) {
+				hasCollision = true;
+				break;
+			}
+		}
+
+		auto* obj0 = const_cast<btCollisionObject*>(contactManifold->getBody0());
+		auto* obj1 = const_cast<btCollisionObject*>(contactManifold->getBody1());
+
+		if (!obj0 || !obj1) continue;
+
+		char* name0 = static_cast<char*>(obj0->getUserPointer());
+		char* name1 = static_cast<char*>(obj1->getUserPointer());
+
+		if (!name0 || !name1) continue;
+
+		spdlog::info("{}, {}", name0, name1);
+		
+		{
+			bool playerAndLandScape = (name0 == "PLAYER" && name1 == "LANDSCAPE") ||
+				(name0 == "LANDSCAPE" && name1 == "PLAYER");
+
+			if (playerAndLandScape && hasCollision) {
+				ProgramValues::CameraKeyEvents::isOnJump = false;
+			} else if (playerAndLandScape && !hasCollision) {
+				ProgramValues::CameraKeyEvents::isOnJump = true;
+			}
+
+		}
+
+	}
 }
 
 btDiscreteDynamicsWorld* PhysicsManager::getWorld() {
@@ -225,6 +274,7 @@ void PhysicsManager::initRigidBodies() {
 			COLLISION_CATEGORIES::PLAYER | COLLISION_CATEGORIES::OBJECTS);
 
 		landscapeBody->setFriction(1.0f);
+		landscapeBody->setUserPointer((void*)"LANDSCAPE");
 	}
 
 	{
@@ -251,6 +301,7 @@ void PhysicsManager::initRigidBodies() {
 		playerGhostBody->setAngularFactor(btVector3(0,0,0));
 		playerGhostBody->setRollingFriction(1.0f);
 		playerGhostBody->setSpinningFriction(1.0f);
+		playerGhostBody->setUserPointer((void*)"PLAYER");
 	}
 
 	spdlog::info("Initialized rigid bodies successfully.");
