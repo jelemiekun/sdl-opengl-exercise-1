@@ -67,6 +67,7 @@ namespace ProgramValues {
 
 	namespace GameObjects {
 		extern Model landscape;
+		extern Model throwingBall;
 	}
 
 	namespace CameraKeyEvents {
@@ -100,5 +101,10 @@ namespace ProgramValues {
 	namespace GameFlags {
 		extern bool isFreeFlying;
 		extern bool isFreeFlyingPressed;
+	}
+
+	namespace ThrowableSphereFlags {
+		extern bool pressingDown;
+		extern bool cooldownDone;
 	}
 };

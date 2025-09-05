@@ -41,6 +41,7 @@ namespace ProgramValues {
 
 	namespace GameObjects {
 		Model landscape;
+		Model throwingBall;
 	}
 
 	namespace CameraKeyEvents {
@@ -91,5 +92,10 @@ namespace ProgramValues {
 	namespace GameFlags {
 		bool isFreeFlying = false;
 		bool isFreeFlyingPressed = false;
+	}
+
+	namespace ThrowableSphereFlags {
+		bool pressingDown = false;
+		bool cooldownDone = true;
 	}
 }

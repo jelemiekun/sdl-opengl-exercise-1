@@ -15,6 +15,7 @@
 #include "PhysicsManager.h"
 #include "ModelInstance.h"
 #include "ModelInstanceManager.h"
+#include "ThrowableSphere.h"
 
 static Game* game = Game::getInstance();
 
@@ -132,12 +133,14 @@ void GameWindow::handleWindowEvents(SDL_Event& e) {
 void GameWindow::input(SDL_Event& e) {
     handleWindowEvents(e);
     ProgramValues::Cameras::cameraReference->processInput(e, this);
+    ThrowableSphere::input(e);
 }
 
 void GameWindow::update() {
     if (ProgramValues::CameraKeyEvents::isLockedIn) {
         PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
         ModelInstanceManager::updateAllModelMatrices();
+        ThrowableSphere::update();
     }
 
     ProgramValues::Cameras::cameraReference->update();
@@ -184,6 +187,13 @@ void GameWindow::render() {
 
         shaderObject->unbind();
     } 
+
+    {
+        // TODO
+        /*
+            different shader for objects then drawAll throwingBall model type
+        */
+    }
 
     {
         glDepthFunc(GL_LEQUAL);

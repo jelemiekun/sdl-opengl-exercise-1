@@ -86,6 +86,7 @@ void Game::initModels() {
     spdlog::info("Initializing models...");
 
     ProgramValues::GameObjects::landscape.init("assets/models/big_landscape.glb", "Land scape");
+    ProgramValues::GameObjects::throwingBall.init("assets/models/Plain_Sphere.glb", "Throwing Ball");
 
     spdlog::info("Models initialized successsfully.");
 }
@@ -199,13 +200,17 @@ void Game::initFOVProjection() {
 void Game::initModelInstanceManager() {
     spdlog::info("Initializing models pre-instances...");
 
-    {
+    { // MODEL TYPES
         ModelInstanceManager::addModelType(
             ProgramValues::GameObjects::landscape.modelName
         );
+
+        ModelInstanceManager::addModelType(
+            ProgramValues::GameObjects::throwingBall.modelName
+        );
     }
 
-    {
+    { // MODEL INSTANCES
         ModelInstance landscapeInstance(&ProgramValues::GameObjects::landscape);
         ModelInstanceManager::addModelInstance(
             ProgramValues::GameObjects::landscape.modelName, landscapeInstance);
