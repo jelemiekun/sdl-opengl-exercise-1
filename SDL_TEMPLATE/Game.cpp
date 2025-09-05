@@ -1,6 +1,7 @@
-#include "Game.h"
 #include <spdlog/spdlog.h>
 #include <glad/glad.h>
+#include <memory>
+#include "Game.h"
 #include "GameWindow.h"
 #include "ImGuiWindow.h"
 #include "FPSManager.h"
@@ -211,7 +212,7 @@ void Game::initModelInstanceManager() {
     }
 
     { // MODEL INSTANCES
-        ModelInstance landscapeInstance(&ProgramValues::GameObjects::landscape);
+        auto landscapeInstance = std::make_shared<ModelInstance>(&ProgramValues::GameObjects::landscape);
         ModelInstanceManager::addModelInstance(
             ProgramValues::GameObjects::landscape.modelName, landscapeInstance);
     }

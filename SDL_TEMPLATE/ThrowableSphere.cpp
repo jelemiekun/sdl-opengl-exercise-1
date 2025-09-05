@@ -13,7 +13,7 @@ PhysicsProperties::PhysicsProperties(btSphereShape* r_Shape, btRigidBody* r_Body
 
 Uint32 ThrowableSphere::lastTime = SDL_GetTicks();
 
-std::unordered_map<ModelInstance*, PhysicsProperties> ThrowableSphere::modelPhysicsMap;
+std::unordered_map<std::shared_ptr<ModelInstance>, PhysicsProperties> ThrowableSphere::modelPhysicsMap;
 
 void ThrowableSphere::checkCooldownTimer() {
 	if (ProgramValues::ThrowableSphereFlags::cooldownDone)
@@ -37,7 +37,10 @@ void ThrowableSphere::input(SDL_Event& event) {
 
 void ThrowableSphere::update() {
 	checkCooldownTimer();
-	if (isReadyToThrow()) createThrowableSphere();
+	if (isReadyToThrow()) {
+		createThrowableSphere();
+		updateCooldownTimerAndFlag();
+	}
 }
 
 bool ThrowableSphere::isReadyToThrow() {
@@ -48,19 +51,24 @@ bool ThrowableSphere::isReadyToThrow() {
 void ThrowableSphere::createThrowableSphere() {
 	spdlog::info("Creating throwable sphere...");
 
-	ModelInstance sphere(&ProgramValues::GameObjects::throwingBall);
-	addToModelTypeList(&sphere);
-	addToModelPhysicsMap(&sphere);
+	auto sphere = std::make_shared<ModelInstance>(&ProgramValues::GameObjects::throwingBall);
+	addToModelPhysicsMap(sphere);
+	addToModelTypeList(sphere);
 
 	spdlog::info("Throwable sphere created successfully.");
 }
 
-void ThrowableSphere::addToModelTypeList(ModelInstance* sphere) {
-	ModelInstanceManager::addModelInstance(ProgramValues::GameObjects::throwingBall.modelName, sphere);
+void ThrowableSphere::updateCooldownTimerAndFlag() {
+	ProgramValues::ThrowableSphereFlags::cooldownDone = false;
+	lastTime = SDL_GetTicks();
 }
 
-void ThrowableSphere::addToModelPhysicsMap(ModelInstance* sphere) {
-	modelPhysicsMap.insert({ sphere, generatePhysicsProperties() });
+void ThrowableSphere::addToModelTypeList(std::shared_ptr<ModelInstance> sphere) {
+    ModelInstanceManager::addModelInstance(ProgramValues::GameObjects::throwingBall.modelName, sphere);
+}
+
+void ThrowableSphere::addToModelPhysicsMap(std::shared_ptr<ModelInstance> sphere) {
+    modelPhysicsMap.emplace(sphere, generatePhysicsProperties());
 }
 
 PhysicsProperties ThrowableSphere::generatePhysicsProperties() {
@@ -88,7 +96,7 @@ PhysicsProperties ThrowableSphere::generatePhysicsProperties() {
 			COLLISION_CATEGORIES::VOID_PLANE
 		);
 
-	manipulateRigidBody(rigidBody);
+	manipulateRigidBody(*rigidBody);
 
 	PhysicsProperties physicsProperties(shape, rigidBody);
 
@@ -96,24 +104,68 @@ PhysicsProperties ThrowableSphere::generatePhysicsProperties() {
 }
 
 float ThrowableSphere::generateRandomRadius() {
-	std::random_device dev;
-    std::mt19937 rng(dev());
-    std::uniform_int_distribution<> dist6(1, 6);
-	std::uniform_real_distribution<std::mt19937::result_type> dist6(MIN_RADIUS, MAX_RADIUS);
-	return dist6(rng);
+    static std::random_device dev;
+    static std::mt19937 rng(dev());
+    std::uniform_int_distribution<int> d(static_cast<int>(MIN_RADIUS*10.0f), static_cast<int>(MAX_RADIUS*10.0f));
+	return static_cast<float>(d(rng)) / 10.0f;
 }
 
-void ThrowableSphere::manipulateRigidBody(btRigidBody* body) {
+void ThrowableSphere::manipulateRigidBody(btRigidBody& body) {
 	// TODO impulse
 }
 
-void ThrowableSphere::removeInstance() {
+void ThrowableSphere::removeInstance(std::shared_ptr<ModelInstance> modelInstance) {
+	spdlog::info("Removing instance of throwable sphere...");
+
+	removeInstanceToModelPhysicsMap(modelInstance);
+	removeInstanceToModelTypeList(modelInstance);
+
+	spdlog::info("Removed instance successfully.");
 }
 
-void ThrowableSphere::removeInstanceToModelTypeList() {
+void ThrowableSphere::removeInstanceToModelTypeList(std::shared_ptr<ModelInstance> modelInstance) {
+	spdlog::info("Removing instance of throwable sphere in the model type map...");
 
+	std::string modelName = ProgramValues::GameObjects::throwingBall.modelName;
+
+	auto it = ModelInstanceManager::modelInstances.find(modelName);
+
+	if (it == ModelInstanceManager::modelInstances.end()) {
+		spdlog::error("Failed to proceed to removing instance of the model to the model type map. Model {} does not exist on the map!", modelName);
+		return;
+	}
+
+	auto& vec = it->second;
+	vec.erase(std::remove_if(vec.begin(), vec.end(),
+		[&](const std::shared_ptr<ModelInstance>& inst) {
+			return inst == modelInstance;
+		}),
+	vec.end());
+
+
+	spdlog::info("Removed instance in the model type map successfully.");
 }
 
-void ThrowableSphere::removeInstanceToModelPhysicsMap() {
+void ThrowableSphere::removeInstanceToModelPhysicsMap(std::shared_ptr<ModelInstance> modelInstance) {
+	spdlog::info("Removing instance of throwable sphere in the model physics map...");
 
+	auto it = modelPhysicsMap.find(modelInstance);
+    if (it == modelPhysicsMap.end()) {
+        spdlog::error("ModelInstance not found in physics map!");
+        return;
+    }
+
+	auto& physicsProperties = it->second;
+	deleteModelInstancePhysicalProperties(physicsProperties);
+
+	modelPhysicsMap.erase(it);
+
+	spdlog::info("Removed instance of throwable sphere in the model physics map successfully.");
+}
+
+void ThrowableSphere::deleteModelInstancePhysicalProperties(PhysicsProperties& physicsProperties) {
+	PhysicsManager::getWorld()->removeRigidBody(physicsProperties.body);
+	delete physicsProperties.body->getMotionState();
+	delete physicsProperties.body;
+	delete physicsProperties.shape;
 }

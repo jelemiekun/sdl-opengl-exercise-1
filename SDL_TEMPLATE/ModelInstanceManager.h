@@ -2,25 +2,26 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include <memory>
 
 struct ModelInstance;
 class Shader;
 
 struct ModelInstanceManager {
 public:
-	static std::unordered_map<std::string, std::vector<ModelInstance>> modelInstances;
+	static std::unordered_map<std::string, std::vector<std::shared_ptr<ModelInstance>>> modelInstances;
 
-	static void addModelType(std::string modelName);
-	static void addModelInstance(std::string modelName, ModelInstance& modelInstance);
-	static void removeModelType(std::string modelName);
-	static void removeModelInstance(std::string modelName, ModelInstance& modelInstance);
+	static void addModelType(const std::string& modelName);
+	static void addModelInstance(const std::string& modelName, std::shared_ptr<ModelInstance> modelInstance);
+	static void removeModelType(const std::string& modelName);
+	static void removeModelInstance(const std::string& modelName, std::shared_ptr<ModelInstance> modelInstance);
 
 	static void updateAllModelMatrices();
 
 	static void drawAll(Shader& shader);
-	static void drawAll(Shader& shader, std::string type);
+	static void drawAll(Shader& shader, const std::string& type);
 
 private:
-	static bool modelNameExists(std::string modelName);
+	static bool modelNameExists(const std::string& modelName);
 };
 

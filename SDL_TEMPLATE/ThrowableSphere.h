@@ -10,11 +10,24 @@ struct PhysicsProperties {
 
 	btSphereShape* shape;
 	btRigidBody* body;
+
+	~PhysicsProperties() = default;
+
+    PhysicsProperties(const PhysicsProperties&) = delete;
+    PhysicsProperties& operator=(const PhysicsProperties&) = delete;
+
+    PhysicsProperties(PhysicsProperties&& o) noexcept : shape(o.shape), body(o.body) {
+        o.shape = nullptr; o.body = nullptr;
+    }
+    PhysicsProperties& operator=(PhysicsProperties&& o) noexcept {
+        if (this != &o) { shape = o.shape; body = o.body; o.shape = nullptr; o.body = nullptr; }
+        return *this;
+    }
 };
 
 class ThrowableSphere {
 private:
-	static std::unordered_map<ModelInstance*, PhysicsProperties> modelPhysicsMap;
+	static std::unordered_map<std::shared_ptr<ModelInstance>, PhysicsProperties> modelPhysicsMap;
 	constexpr static Uint32 COOLDOWN_TIME = 1000;
 	constexpr static float MIN_RADIUS = 0.1f;
 	constexpr static float MAX_RADIUS = 1.5f;
@@ -24,14 +37,16 @@ private:
 	static void checkCooldownTimer();
 	static bool isReadyToThrow();
 	static void createThrowableSphere();
-	static void addToModelTypeList(ModelInstance* sphere);
-	static void addToModelPhysicsMap(ModelInstance* sphere);
+	static void updateCooldownTimerAndFlag();
+	static void addToModelTypeList(std::shared_ptr<ModelInstance> sphere);
+	static void addToModelPhysicsMap(std::shared_ptr<ModelInstance> sphere);
 	static PhysicsProperties generatePhysicsProperties();
 	static float generateRandomRadius();
-	static void manipulateRigidBody(btRigidBody* body);
-	static void removeInstance(); // TODO
-	static void removeInstanceToModelTypeList();
-	static void removeInstanceToModelPhysicsMap();
+	static void manipulateRigidBody(btRigidBody& body);
+	static void removeInstance(std::shared_ptr<ModelInstance> modelInstance); // TODO
+	static void removeInstanceToModelTypeList(std::shared_ptr<ModelInstance> modelInstance);
+	static void removeInstanceToModelPhysicsMap(std::shared_ptr<ModelInstance> modelInstance);
+	static void deleteModelInstancePhysicalProperties(PhysicsProperties& physicsProperties);
 
 public:
 	static void input(SDL_Event& event);

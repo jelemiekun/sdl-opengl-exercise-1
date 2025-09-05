@@ -218,6 +218,7 @@ void PhysicsManager::initPhysicsWorld() {
 	spdlog::info("Initializing physics world...");
 
 	// Bullet physics world setup
+	spdlog::trace("Creating physics world collision configuration...");
 	btDefaultCollisionConfiguration* collisionConfig = new btDefaultCollisionConfiguration();
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfig);
 	btBroadphaseInterface* broadphase = new btDbvtBroadphase();
@@ -272,7 +273,7 @@ void PhysicsManager::initCollisionShapes() {
 
 		auto& instances = it->second;
 		for (auto& instance : instances) {
-			instance.scale = scale;
+			instance.get()->scale = scale;
 		}
 
 		landscapeShape->setLocalScaling(btVector3(scale, scale, scale));

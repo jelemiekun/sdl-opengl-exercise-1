@@ -3,9 +3,9 @@
 #include "PhysicsManager.h"
 #include <spdlog/spdlog.h>
 
-std::unordered_map<std::string, std::vector<ModelInstance>> ModelInstanceManager::modelInstances;
+std::unordered_map<std::string, std::vector<std::shared_ptr<ModelInstance>>> ModelInstanceManager::modelInstances;
 
-void ModelInstanceManager::addModelType(std::string modelName) {
+void ModelInstanceManager::addModelType(const std::string& modelName) {
 	spdlog::info("Adding model type to the map...");
 
 	if (modelNameExists(modelName)) {
@@ -13,11 +13,11 @@ void ModelInstanceManager::addModelType(std::string modelName) {
 		return;
 	}
 
-	modelInstances[modelName] = std::vector<ModelInstance>();
-	spdlog::info("Model type {} successfully added to the map successfully.", modelName);
+	modelInstances[modelName] = std::vector<std::shared_ptr<ModelInstance>>();
+	spdlog::info("Model type {} added to the map successfully.", modelName);
 }
 
-void ModelInstanceManager::addModelInstance(std::string modelName, ModelInstance& modelInstance) {
+void ModelInstanceManager::addModelInstance(const std::string& modelName, std::shared_ptr<ModelInstance> modelInstance) {
 	spdlog::info("Adding instance of a model...");
 
 	if (!modelNameExists(modelName)) {
@@ -25,11 +25,11 @@ void ModelInstanceManager::addModelInstance(std::string modelName, ModelInstance
 		return;
 	}
 
-	modelInstances[modelName].push_back(modelInstance);
+	modelInstances[modelName].emplace_back(modelInstance);
 	spdlog::info("Instance of model {} added to the list successfully.", modelName);
 }
 
-void ModelInstanceManager::removeModelType(std::string modelName) {
+void ModelInstanceManager::removeModelType(const std::string& modelName) {
 	spdlog::info("Removing model type to the map...");
 
 	auto it = modelInstances.find(modelName);
@@ -44,14 +44,16 @@ void ModelInstanceManager::removeModelType(std::string modelName) {
 
     spdlog::info("Successfully removed all instances of the model type. Removing model type from the map...");
 
-    std::string refName = modelName;
     modelInstances.erase(it);
 
-    spdlog::info("Model type {} successfully removed from the map.", refName);
+    spdlog::info("Model type {} successfully removed from the map.", modelName);
 }
 
-void ModelInstanceManager::removeModelInstance(std::string modelName, ModelInstance& modelInstance) {
+void ModelInstanceManager::removeModelInstance(const std::string& modelName, std::shared_ptr<ModelInstance> modelInstance) {
 	spdlog::info("Removing an instance of {} from the list...", modelName);
+
+	int sizeBefore = 0;
+	int sizeAfter = 0;
 
 	auto it = modelInstances.find(modelName);
     if (it == modelInstances.end()) {
@@ -61,37 +63,42 @@ void ModelInstanceManager::removeModelInstance(std::string modelName, ModelInsta
 
 	auto& instances = it->second;
 
-    /*instances.erase(
-        std::remove(instances.begin(), instances.end(), modelInstance),
-        instances.end()
-    );*/
+	sizeBefore = instances.size();
 
-    spdlog::info("Removed an instance of the model type {}...", modelName);
+    instances.erase(
+		std::remove(instances.begin(), instances.end(), modelInstance),
+		instances.end()
+	);
+
+	sizeAfter = instances.size();
+
+	if (sizeBefore != sizeAfter)
+		spdlog::info("Removed an instance of the model type {}...", modelName);
+	else
+		spdlog::info("Removed no instances of the model type {}...", modelName);
 }
 
 void ModelInstanceManager::updateAllModelMatrices() {
 	for (auto& modelTypes : modelInstances) {
-		std::string model = modelTypes.first;
 		auto& instances = modelTypes.second;
 
 		for (auto& instance : instances) {
-			PhysicsManager::updateModelMatrix(&instance, PhysicsManager::landscapeBody);
+			PhysicsManager::updateModelMatrix(instance.get(), PhysicsManager::landscapeBody);
 		}
 	}
 }
 
 void ModelInstanceManager::drawAll(Shader& shader) {
 	for (auto& modelTypes : modelInstances) {
-		std::string model = modelTypes.first;
 		auto& instances = modelTypes.second;
 
 		for (auto& instance : instances) {
-			instance.draw(shader);
+			instance->draw(shader);
 		}
 	}
 }
 
-void ModelInstanceManager::drawAll(Shader& shader, std::string modelName) {
+void ModelInstanceManager::drawAll(Shader& shader, const std::string& modelName) {
 
     auto it = modelInstances.find(modelName);
     if (it == modelInstances.end()) {
@@ -101,11 +108,11 @@ void ModelInstanceManager::drawAll(Shader& shader, std::string modelName) {
 
     auto& instances = it->second;
     for (auto& instance : instances) {
-        instance.draw(shader);
+        instance->draw(shader);
     }
 }
 
 
-bool ModelInstanceManager::modelNameExists(std::string modelName) {
+bool ModelInstanceManager::modelNameExists(const std::string& modelName) {
 	return modelInstances.find(modelName) != modelInstances.end();
 }
