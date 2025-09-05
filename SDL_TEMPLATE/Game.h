@@ -39,6 +39,7 @@ private:
     void initCamera();
     void initCubemaps();
     void initFOVProjection();
+    void initModelInstanceManager();
     void pairCameraAndCameraObject();
     void initPhysicsManager();
     void preTransformObjects();
