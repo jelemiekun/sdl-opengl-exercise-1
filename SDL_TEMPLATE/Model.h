@@ -2,7 +2,6 @@
 
 #include <glad/glad.h> 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <string>
 #include <vector>
 #include <map>
@@ -19,19 +18,10 @@ public:
     std::vector<Texture> textures_loaded;
     std::vector<Mesh> meshes;
     std::string directory;
+    std::string modelName;
 
-    glm::mat4 model;
-    float scale = 1.0f;
-    glm::vec3 translation = glm::vec3(0.0f);
-    float radiansRotate = 0.0f;
-    glm::vec3 rotateAxis = glm::vec3(0.0f, 1.0f, 0.0f);
-    bool gammaCorrection;
-
-    Model(bool gamma = false);
-    void init(std::string const& path);
-    void Draw(Shader& shader);
-    void updateModelMatrix();
-    glm::mat3 getNormalMatrix();
+    Model();
+    void init(std::string const& path, std::string const& modelName);
 
 private:
     void loadModel(std::string const& path);

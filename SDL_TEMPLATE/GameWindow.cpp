@@ -13,6 +13,7 @@
 #include "ProgramValues.h"
 #include "Model.h"
 #include "PhysicsManager.h"
+#include "ModelInstanceManager.h"
 
 static Game* game = Game::getInstance();
 
@@ -179,16 +180,8 @@ void GameWindow::render() {
         shaderObject->bind();
         shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
         shaderObject->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
-    
-        auto drawModel = [this](Model* modelRef) -> void {
-            Shader* shaderObject = &ProgramValues::Shaders::shaderObject;
-            shaderObject->setMat3("u_NormalMatrix", modelRef->getNormalMatrix());
-            shaderObject->setFloat("material.shininess", 1.0f);
         
-            modelRef->Draw(*shaderObject);
-        };
-
-        drawModel(&ProgramValues::GameObjects::landscape);
+        ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::landscape.modelName);
 
         shaderObject->unbind();
     } 

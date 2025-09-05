@@ -39,6 +39,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelInstance.cpp" />
+    <ClCompile Include="ModelInstanceManager.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="ProgramValues.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -76,6 +78,8 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelInstance.h" />
+    <ClInclude Include="ModelInstanceManager.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="ProgramValues.h" />
     <ClInclude Include="Shader.h" />

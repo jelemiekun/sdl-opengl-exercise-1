@@ -83,7 +83,7 @@ void Game::initShaders() {
 void Game::initModels() {
     spdlog::info("Initializing models...");
 
-    ProgramValues::GameObjects::landscape.init("assets/models/big_landscape.glb");
+    ProgramValues::GameObjects::landscape.init("assets/models/big_landscape.glb", "Land scape");
 
     spdlog::info("Models initialized successsfully.");
 }
@@ -192,6 +192,14 @@ void Game::initFOVProjection() {
         ProgramValues::Cameras::freeFly.nearClip,
         ProgramValues::Cameras::freeFly.farClip
     );
+}
+
+void Game::initModelInstanceManager() {
+    spdlog::info("Initializing models pre-instances...");
+
+    // TODO
+
+    spdlog::info("Models instances initialized successsfully.");
 }
 
 void Game::pairCameraAndCameraObject() {

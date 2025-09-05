@@ -6,28 +6,11 @@
 unsigned int TextureFromFile(const char* path, const std::string& directory, const aiScene* scene, bool gamma = false);
 static glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& from);
 
-Model::Model(bool gamma) : model(1.0f), gammaCorrection(gamma) {
-}
+Model::Model() {}
 
-void Model::init(std::string const& path) {
+void Model::init(std::string const& path, std::string const& modelName) {
     loadModel(path);
-}
-
-void Model::Draw(Shader& shader) {
-    for (unsigned int i = 0; i < meshes.size(); i++)
-        meshes[i].Draw(shader, model);
-}
-
-void Model::updateModelMatrix() {
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, translation);
-    model = glm::scale(model, glm::vec3(scale));
-    model = glm::rotate(model, glm::radians(radiansRotate), rotateAxis);
-}
-
-glm::mat3 Model::getNormalMatrix() {
-    glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
-    return normalMatrix;
+    this->modelName = modelName;
 }
 
 void Model::loadModel(std::string const& path) {

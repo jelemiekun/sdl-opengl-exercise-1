@@ -117,6 +117,12 @@
     <ClCompile Include="DebugDrawer.cpp">
       <Filter>Source Files\custom</Filter>
     </ClCompile>
+    <ClCompile Include="ModelInstance.cpp">
+      <Filter>Source Files\custom</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelInstanceManager.cpp">
+      <Filter>Source Files\custom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig">
@@ -218,6 +224,12 @@
       <Filter>Header Files\custom</Filter>
     </ClInclude>
     <ClInclude Include="DebugDrawer.h">
+      <Filter>Header Files\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelInstance.h">
+      <Filter>Header Files\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelInstanceManager.h">
       <Filter>Header Files\custom</Filter>
     </ClInclude>
   </ItemGroup>
