@@ -82,7 +82,12 @@ PhysicsProperties ThrowableSphere::generatePhysicsProperties() {
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, inertia);
 	btRigidBody* rigidBody = new btRigidBody(rbInfo);
 
-	PhysicsManager::getWorld()->addRigidBody(rigidBody);
+	PhysicsManager::getWorld()->addRigidBody(rigidBody,
+			COLLISION_CATEGORIES::OBJECTS,
+			COLLISION_CATEGORIES::ENVIRONMENT |
+			COLLISION_CATEGORIES::VOID_PLANE
+		);
+
 	manipulateRigidBody(rigidBody);
 
 	PhysicsProperties physicsProperties(shape, rigidBody);
