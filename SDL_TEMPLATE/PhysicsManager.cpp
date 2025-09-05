@@ -28,10 +28,14 @@ btVector3 PhysicsManager::gravity = btVector3(0, -9.8f, 0);
 btVector3 PhysicsManager::playerStartingPosition = btVector3(10.0f, 13.0f, -8.5);
 
 void PhysicsManager::init() {
+	spdlog::info("Initializing physics manager...");
+
 	initPhysicsWorld();
 	initDebugger();
 	initCollisionShapes();
 	initRigidBodies();
+
+	spdlog::info("Physics manager initialized successfully.");
 }
 
 void PhysicsManager::update(const float deltaTime) {
@@ -163,7 +167,7 @@ void PhysicsManager::updateCollisions() {
 		char* name1 = static_cast<char*>(obj1->getUserPointer());
 
 		if (!name0 || !name1) {
-			spdlog::info("One or two object collided has no name.");
+			spdlog::warn("One or two object collided has no name. Make sure to set user pointer for all objects!");
 			continue;
 		}
 		
@@ -215,95 +219,120 @@ DebugDrawer* PhysicsManager::getDebugDrawer() {
 }
 
 void PhysicsManager::initPhysicsWorld() {
-	spdlog::info("Initializing physics world...");
+    spdlog::info("Initializing physics world...");
 
-	// Bullet physics world setup
-	spdlog::trace("Creating physics world collision configuration...");
-	btDefaultCollisionConfiguration* collisionConfig = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfig);
-	btBroadphaseInterface* broadphase = new btDbvtBroadphase();
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
+    spdlog::trace("Creating collision configuration...");
+    btDefaultCollisionConfiguration* collisionConfig = new btDefaultCollisionConfiguration();
 
-	if (dynamicsWorld) {
-		spdlog::info("Initialized physics world successfully.");
-	} else {
-		spdlog::error("Failed to initialize physics world.");
-	}
+    spdlog::trace("Creating dispatcher...");
+    btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfig);
 
-	// Set gravity
-	dynamicsWorld->setGravity(gravity);
-	spdlog::info("Initialized gravity with {}, {}, {}", gravity.x(), gravity.y(), gravity.z());
+    spdlog::trace("Creating broadphase...");
+    btBroadphaseInterface* broadphase = new btDbvtBroadphase();
+
+    spdlog::trace("Creating solver...");
+    btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+
+    spdlog::trace("Creating dynamics world...");
+    dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
+
+    if (dynamicsWorld) {
+        spdlog::info("Physics world created successfully.");
+    } else {
+        spdlog::error("Failed to create physics world.");
+    }
+
+    dynamicsWorld->setGravity(gravity);
+    spdlog::debug("Gravity set to: {}, {}, {}", gravity.x(), gravity.y(), gravity.z());
 }
+
 
 void PhysicsManager::initDebugger() {
 	debugDrawer = new DebugDrawer;
 	dynamicsWorld->setDebugDrawer(debugDrawer);
 }
 void PhysicsManager::initCollisionShapes() {
-	spdlog::info("Initializing collision shapes...");
+    spdlog::info("Initializing collision shapes...");
 
-	{
-		btTriangleMesh* triangleMesh = new btTriangleMesh;
+    spdlog::trace("Building triangle mesh for landscape...");
+    btTriangleMesh* triangleMesh = new btTriangleMesh;
 
-		Model* model = &ProgramValues::GameObjects::landscape;
-		for (auto& mesh : model->meshes) {
-			for (size_t i = 0; i < mesh.indices.size(); i += 3) {
-				glm::vec4 v0 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i]].Position, 1.0f);
-				glm::vec4 v1 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i + 1]].Position, 1.0f);
-				glm::vec4 v2 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i + 2]].Position, 1.0f);
+    Model* model = &ProgramValues::GameObjects::landscape;
+    size_t numTriangles = 0;
 
-				triangleMesh->addTriangle(
-					btVector3(v0.x, v0.y, v0.z),
-					btVector3(v1.x, v1.y, v1.z),
-					btVector3(v2.x, v2.y, v2.z)
-				);
-			}
-		}
+    for (auto& mesh : model->meshes) {
+        for (size_t i = 0; i < mesh.indices.size(); i += 3) {
+            glm::vec4 v0 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i]].Position, 1.0f);
+            glm::vec4 v1 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i + 1]].Position, 1.0f);
+            glm::vec4 v2 = mesh.transform * glm::vec4(mesh.vertices[mesh.indices[i + 2]].Position, 1.0f);
 
-		landscapeShape = new btBvhTriangleMeshShape(triangleMesh, true);
+            triangleMesh->addTriangle(
+                btVector3(v0.x, v0.y, v0.z),
+                btVector3(v1.x, v1.y, v1.z),
+                btVector3(v2.x, v2.y, v2.z)
+            );
+            numTriangles++;
+        }
+    }
+    spdlog::debug("Landscape triangle mesh built with {} triangles.", numTriangles);
 
-		float scale = 120.0f;
-		
-		auto it = ModelInstanceManager::modelInstances.find(ProgramValues::GameObjects::landscape.modelName);
-		if (it == ModelInstanceManager::modelInstances.end()) {
-			spdlog::warn("No instances found for model type {}", ProgramValues::GameObjects::landscape.modelName);
-			return;
-		}
+    landscapeShape = new btBvhTriangleMeshShape(triangleMesh, true);
 
-		auto& instances = it->second;
-		for (auto& instance : instances) {
-			instance.get()->scale = scale;
-		}
+    float scale = 120.0f;
+    auto it = ModelInstanceManager::modelInstances.find(ProgramValues::GameObjects::landscape.modelName);
+    if (it == ModelInstanceManager::modelInstances.end()) {
+        spdlog::warn("No instances found for landscape model '{}'. Cannot apply scale.", 
+                     ProgramValues::GameObjects::landscape.modelName);
+    } else {
+        for (auto& instance : it->second) {
+            instance->scale = scale;
+        }
+        spdlog::debug("Applied scale {} to all instances of '{}'.", 
+                      scale, ProgramValues::GameObjects::landscape.modelName);
+    }
 
-		landscapeShape->setLocalScaling(btVector3(scale, scale, scale));
-	}
+    landscapeShape->setLocalScaling(btVector3(scale, scale, scale));
+    spdlog::info("Landscape collision shape created.");
 
-	{
-		playerShape = new btCapsuleShape(btScalar(0.2f), btScalar(0.8f));
-	}
+    spdlog::trace("Creating player capsule shape...");
+    playerShape = new btCapsuleShape(btScalar(0.2f), btScalar(0.8f));
+    spdlog::info("Player capsule shape created with radius 0.2 and height 0.8.");
 
-	{
-		voidPlaneShape = new btStaticPlaneShape(
-			btVector3(0,1,0),
-			btScalar(-100)
-		);
-	}
-	
-	spdlog::info("Initialized collision shapes successfully.");
+    spdlog::trace("Creating void plane shape...");
+    voidPlaneShape = new btStaticPlaneShape(btVector3(0,1,0), btScalar(-100));
+    spdlog::info("Void plane shape created at Y = -100.");
+
+    spdlog::info("Collision shapes initialized successfully.");
 }
+
 
 void PhysicsManager::initRigidBodies() {
 	spdlog::info("Initializing rigid bodies...");
 
+	if (!dynamicsWorld) {
+		spdlog::error("dynamicsWorld is null — cannot add rigid bodies!");
+		return;
+	}
+
 	{
+		spdlog::info("Creating landscape rigid body...");
+		if (!landscapeShape) {
+			spdlog::error("landscapeShape is null!");
+		}
+
 		btScalar mass(0.0f);
 		btVector3 inertia(0, 0, 0);
 
 		btDefaultMotionState* motionState = new btDefaultMotionState(btTransform::getIdentity());
-		btRigidBody::btRigidBodyConstructionInfo RBInfo(mass, motionState, landscapeShape, inertia);
+		if (!motionState) {
+			spdlog::error("Failed to allocate motionState for landscape.");
+		}
 
+		btRigidBody::btRigidBodyConstructionInfo RBInfo(mass, motionState, landscapeShape, inertia);
 		landscapeBody = new btRigidBody(RBInfo);
+		if (!landscapeBody) {
+			spdlog::error("Failed to create landscapeBody!");
+		}
 
 		dynamicsWorld->addRigidBody(landscapeBody, 
 			COLLISION_CATEGORIES::ENVIRONMENT,
@@ -311,9 +340,15 @@ void PhysicsManager::initRigidBodies() {
 
 		landscapeBody->setFriction(1.0f);
 		landscapeBody->setUserPointer((void*)"LANDSCAPE");
+		spdlog::info("Landscape rigid body initialized.");
 	}
 
 	{
+		spdlog::info("Creating player rigid body...");
+		if (!playerShape) {
+			spdlog::error("playerShape is null!");
+		}
+
 		btScalar mass = 60.0f;
 		btVector3 inertia(0, 0, 0);
 		playerShape->calculateLocalInertia(mass, inertia);
@@ -321,36 +356,53 @@ void PhysicsManager::initRigidBodies() {
 		btDefaultMotionState* playerMotion = new btDefaultMotionState(btTransform(
 			btQuaternion(0,0,0,1), playerStartingPosition
 		));
-
-		// glm::vec3(20.0f, 26.0f, -17.0f),
+		if (!playerMotion) {
+			spdlog::error("Failed to allocate playerMotion.");
+		}
 
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, playerMotion, playerShape, inertia);
-
 		playerGhostBody = new btRigidBody(rbInfo);
+		if (!playerGhostBody) {
+			spdlog::error("Failed to create playerGhostBody!");
+		}
 
 		dynamicsWorld->addRigidBody(playerGhostBody,
 			COLLISION_CATEGORIES::PLAYER,
 			COLLISION_CATEGORIES::ENVIRONMENT |
 			COLLISION_CATEGORIES::VOID_PLANE
-			);
+		);
 
 		playerGhostBody->setFriction(1.0f);
 		playerGhostBody->setAngularFactor(btVector3(0,0,0));
 		playerGhostBody->setRollingFriction(1.0f);
 		playerGhostBody->setSpinningFriction(1.0f);
 		playerGhostBody->setUserPointer((void*)"PLAYER");
+		spdlog::info("Player rigid body initialized.");
 	}
 
 	{
+		spdlog::info("Creating void plane rigid body...");
+		if (!voidPlaneShape) {
+			spdlog::error("voidPlaneShape is null!");
+		}
+
 		btDefaultMotionState* motionState = new btDefaultMotionState(btTransform::getIdentity());
+		if (!motionState) {
+			spdlog::error("Failed to allocate motionState for void plane.");
+		}
+
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(0.0f, motionState, voidPlaneShape, btVector3(0, 0, 0));
 		voidPlaneBody = new btRigidBody(rbInfo);
+		if (!voidPlaneBody) {
+			spdlog::error("Failed to create voidPlaneBody!");
+		}
 
 		dynamicsWorld->addRigidBody(voidPlaneBody, 
 			COLLISION_CATEGORIES::VOID_PLANE,
 			COLLISION_CATEGORIES::PLAYER | COLLISION_CATEGORIES::OBJECTS);
-		
+
 		voidPlaneBody->setUserPointer((void*)"VOID_PLANE");
+		spdlog::info("Void plane rigid body initialized.");
 	}
 
 	spdlog::info("Initialized rigid bodies successfully.");

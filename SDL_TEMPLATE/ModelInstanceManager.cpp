@@ -34,7 +34,7 @@ void ModelInstanceManager::removeModelType(const std::string& modelName) {
 
 	auto it = modelInstances.find(modelName);
     if (it == modelInstances.end()) {
-        spdlog::error("Failed to remove. Model type {} does not exist!", modelName);
+        spdlog::error("Failed to remove. Model type {} does not exist on the map!", modelName);
         return;
     }
 
@@ -57,7 +57,7 @@ void ModelInstanceManager::removeModelInstance(const std::string& modelName, std
 
 	auto it = modelInstances.find(modelName);
     if (it == modelInstances.end()) {
-        spdlog::error("Failed to proceed removing an instance of model type. Model type {} does not exist!", modelName);
+        spdlog::error("Failed to proceed removing an instance of model type. Model type {} does not exist on the map!", modelName);
         return;
     }
 
@@ -79,8 +79,12 @@ void ModelInstanceManager::removeModelInstance(const std::string& modelName, std
 }
 
 void ModelInstanceManager::updateAllModelMatrices() {
+	spdlog::debug("Updating model matrices for {} model types...", modelInstances.size());
+
 	for (auto& modelTypes : modelInstances) {
 		auto& instances = modelTypes.second;
+
+		spdlog::trace("Updating matrices for model type {} ({} instances)", modelTypes.first, instances.size());
 
 		for (auto& instance : instances) {
 			PhysicsManager::updateModelMatrix(instance.get(), PhysicsManager::landscapeBody);
@@ -104,9 +108,12 @@ void ModelInstanceManager::drawAll(Shader& shader, const std::string& modelName)
     if (it == modelInstances.end()) {
         spdlog::warn("No instances found for model type {}", modelName);
         return;
-    }
+	}
 
     auto& instances = it->second;
+
+	spdlog::debug("Drawing {} instances of model type {}", instances.size(), modelName);
+
     for (auto& instance : instances) {
         instance->draw(shader);
     }
