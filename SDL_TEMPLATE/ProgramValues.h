@@ -66,7 +66,6 @@ namespace ProgramValues {
 	}
 
 	namespace GameObjects {
-		extern Model* modelRef;
 		extern Model landscape;
 	}
 

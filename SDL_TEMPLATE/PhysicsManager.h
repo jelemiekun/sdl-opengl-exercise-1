@@ -6,6 +6,7 @@
 
 class Model;
 class DebugDrawer;
+struct ModelInstance;
 
 namespace COLLISION_CATEGORIES {
 	const short ENVIRONMENT		= 1 << 0;
@@ -18,7 +19,7 @@ class PhysicsManager {
 public:
 	static void init();
 	static void update(const float deltaTime);
-	static void updateModelMatrix(Model* model, btRigidBody* body);
+	static void updateModelMatrix(ModelInstance* model, btRigidBody* body);
 
 	static inline btVector3 getGravity() { return gravity; }
 	static btDiscreteDynamicsWorld* getWorld();

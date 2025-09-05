@@ -130,78 +130,6 @@ void ImGuiWindow::render() {
 	{
 		ImGui::Begin("Camera##Cam");
 
-		{
-
-			const char* items[] = { "Freefly", "Camera1"};
-			static int item_selected_idx = 0; // Here we store our selection data as an index.
-
-			// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
-			const char* combo_preview_value = items[item_selected_idx];
-
-			if (ImGui::BeginCombo("Cameras##Cam", combo_preview_value, flags)) {
-				for (int n = 0; n < IM_ARRAYSIZE(items); n++) {
-					const bool is_selected = (item_selected_idx == n);
-					if (ImGui::Selectable(items[n], is_selected))
-						item_selected_idx = n;
-
-					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-			}
-
-			switch (item_selected_idx) {
-				case 0: ProgramValues::Cameras::cameraReference = &ProgramValues::Cameras::freeFly;		break;
-				case 1: ProgramValues::Cameras::cameraReference = &ProgramValues::Cameras::camera1;		break;
-				default: break;
-			}
-
-			Camera* cameraRef = ProgramValues::Cameras::cameraReference;
-
-			if (cameraRef) {
-				ImGui::DragFloat("FOV##Cam", &cameraRef->fov, 0.01f);
-				ImGui::DragFloat("Near Clip##Cam", &cameraRef->nearClip, 0.01f, 0.0f, 10000.0f, "%.2f");
-				ImGui::DragFloat("Far Clip##Cam", &cameraRef->farClip, 0.01f, 0.0f, 10000.0f, "%.2f");
-				ImGui::DragFloat("Position X##Cam", &cameraRef->position.x, 0.01f);
-				ImGui::DragFloat("Position Y##Cam", &cameraRef->position.y, 0.01f);
-				ImGui::DragFloat("Position Z##Cam", &cameraRef->position.z, 0.01f);
-				ImGui::DragFloat("Yaw##Cam", &cameraRef->yaw, 0.1f, -360.0f, 360.0f);
-				ImGui::DragFloat("Pitch##Cam", &cameraRef->pitch, 0.1f, -89.0f, 89.0f);
-
-				if (cameraRef->pitch > 89.0f)
-					cameraRef->pitch = 89.0f;
-				if (cameraRef->pitch < -89.0f)
-					cameraRef->pitch = -89.0f;
-
-				ProgramValues::GameWindow::projection = glm::perspective(
-					glm::radians(cameraRef->fov),
-					(float)game->gameWindow->width() / (float)game->gameWindow->height(),
-					cameraRef->nearClip,
-					cameraRef->farClip
-				);
-
-				cameraRef->updateCameraVectors();
-
-				if (item_selected_idx != 0) {
-					Model* cameraModel = CameraPair::getModel(*cameraRef);
-
-					if (cameraModel) {
-						cameraModel->translation = cameraRef->position;
-
-						cameraModel->rotateAxis = glm::vec3(0.0f, 1.0f, 0.0f);
-						cameraModel->radiansRotate = glm::radians(cameraRef->yaw);
-
-						cameraModel->updateModelMatrix();
-					} else {
-						item_selected_idx == 0;
-					}
-
-				}
-			}
-		}
-
-
 		ImGui::End();
 	}
 
@@ -212,47 +140,6 @@ void ImGuiWindow::render() {
 	
 	{
 		ImGui::Begin("Models##Models");
-
-		{
-			Model* objectModelRef = nullptr;
-
-			const char* items[] = { "Landscape", "Cube", "Camera1"};
-			static int item_selected_idx = 0; // Here we store our selection data as an index.
-
-			// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
-			const char* combo_preview_value = items[item_selected_idx];
-
-			if (ImGui::BeginCombo("Models##Models", combo_preview_value, flags)) {
-				for (int n = 0; n < IM_ARRAYSIZE(items); n++) {
-					const bool is_selected = (item_selected_idx == n);
-					if (ImGui::Selectable(items[n], is_selected))
-						item_selected_idx = n;
-
-					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-			}
-
-			switch (item_selected_idx) {
-					break;
-				default: break;
-			}
-
-			if (objectModelRef) {
-				ImGui::DragFloat("Scale##Models", &objectModelRef->scale, 0.2f, 0.01f, 100000.0f, "%.2f");
-				ImGui::DragFloat("Translate X##Models", &objectModelRef->translation.x, 0.05);
-				ImGui::DragFloat("Translate Y##Models", &objectModelRef->translation.y, 0.05);
-				ImGui::DragFloat("Translate Z##Models", &objectModelRef->translation.z, 0.05);
-				ImGui::DragFloat("Radians##Models", &objectModelRef->radiansRotate, 0.2f, 0.01f, 100000.0f, "%.2f");
-				ImGui::DragFloat("Rotate X##Models", &objectModelRef->rotateAxis.x, 0.05);
-				ImGui::DragFloat("Rotate Y##Models", &objectModelRef->rotateAxis.y, 0.05);
-				ImGui::DragFloat("Rotate Z##Models", &objectModelRef->rotateAxis.z, 0.05);
-
-				objectModelRef->updateModelMatrix();
-			}
-		}
 
 		ImGui::End();
 	}

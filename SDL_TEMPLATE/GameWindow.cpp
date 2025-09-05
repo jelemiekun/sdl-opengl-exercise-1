@@ -13,6 +13,7 @@
 #include "ProgramValues.h"
 #include "Model.h"
 #include "PhysicsManager.h"
+#include "ModelInstance.h"
 #include "ModelInstanceManager.h"
 
 static Game* game = Game::getInstance();
@@ -136,9 +137,7 @@ void GameWindow::input(SDL_Event& e) {
 void GameWindow::update() {
     if (ProgramValues::CameraKeyEvents::isLockedIn) {
         PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
-        PhysicsManager::updateModelMatrix(&ProgramValues::GameObjects::landscape, PhysicsManager::landscapeBody);
-        
-        // PhysicsManager::getWorld()->debugDrawWorld();
+        ModelInstanceManager::updateAllModelMatrices();
     }
 
     ProgramValues::Cameras::cameraReference->update();

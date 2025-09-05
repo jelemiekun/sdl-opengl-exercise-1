@@ -13,6 +13,8 @@
 #include "Texture2D.h"
 #include "PhysicsManager.h"
 #include "DebugDrawer.h"
+#include "ModelInstanceManager.h"
+#include "ModelInstance.h"
 
 Game::Game() : running(false), gameWindow(nullptr), imGuiWindow(nullptr) {}
 
@@ -197,7 +199,17 @@ void Game::initFOVProjection() {
 void Game::initModelInstanceManager() {
     spdlog::info("Initializing models pre-instances...");
 
-    // TODO
+    {
+        ModelInstanceManager::addModelType(
+            ProgramValues::GameObjects::landscape.modelName
+        );
+    }
+
+    {
+        ModelInstance landscapeInstance(&ProgramValues::GameObjects::landscape);
+        ModelInstanceManager::addModelInstance(
+            ProgramValues::GameObjects::landscape.modelName, landscapeInstance);
+    }
 
     spdlog::info("Models instances initialized successsfully.");
 }
@@ -233,6 +245,7 @@ void Game::initializeEverything() {
         initShaders();
         initCamera();
         initModels();
+        initModelInstanceManager();
         initCubemaps();
         initFOVProjection();
         pairCameraAndCameraObject();

@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <string>
 
-class ModelInstance;
+struct ModelInstance;
 class Shader;
 
 struct ModelInstanceManager {
@@ -14,6 +14,8 @@ public:
 	static void addModelInstance(std::string modelName, ModelInstance& modelInstance);
 	static void removeModelType(std::string modelName);
 	static void removeModelInstance(std::string modelName, ModelInstance& modelInstance);
+
+	static void updateAllModelMatrices();
 
 	static void drawAll(Shader& shader);
 	static void drawAll(Shader& shader, std::string type);

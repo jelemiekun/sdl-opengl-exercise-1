@@ -1,5 +1,6 @@
 #include "ModelInstanceManager.h"
 #include "ModelInstance.h"
+#include "PhysicsManager.h"
 #include <spdlog/spdlog.h>
 
 std::unordered_map<std::string, std::vector<ModelInstance>> ModelInstanceManager::modelInstances;
@@ -60,12 +61,23 @@ void ModelInstanceManager::removeModelInstance(std::string modelName, ModelInsta
 
 	auto& instances = it->second;
 
-    instances.erase(
+    /*instances.erase(
         std::remove(instances.begin(), instances.end(), modelInstance),
         instances.end()
-    );
+    );*/
 
     spdlog::info("Removed an instance of the model type {}...", modelName);
+}
+
+void ModelInstanceManager::updateAllModelMatrices() {
+	for (auto& modelTypes : modelInstances) {
+		std::string model = modelTypes.first;
+		auto& instances = modelTypes.second;
+
+		for (auto& instance : instances) {
+			PhysicsManager::updateModelMatrix(&instance, PhysicsManager::landscapeBody);
+		}
+	}
 }
 
 void ModelInstanceManager::drawAll(Shader& shader) {

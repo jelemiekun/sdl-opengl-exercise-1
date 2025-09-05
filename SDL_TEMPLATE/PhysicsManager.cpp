@@ -4,6 +4,8 @@
 #include "Model.h"
 #include "Mesh.h"
 #include "Camera.h"
+#include "ModelInstance.h"
+#include "ModelInstanceManager.h"
 #include "DebugDrawer.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -40,7 +42,7 @@ void PhysicsManager::update(const float deltaTime) {
 	updateCollisions();
 }
 
-void PhysicsManager::updateModelMatrix(Model* model, btRigidBody* body) {
+void PhysicsManager::updateModelMatrix(ModelInstance* model, btRigidBody* body) {
     btTransform transRef = PhysicsManager::getTrans(body);
 
     // Position
@@ -261,8 +263,18 @@ void PhysicsManager::initCollisionShapes() {
 		landscapeShape = new btBvhTriangleMeshShape(triangleMesh, true);
 
 		float scale = 120.0f;
+		
+		auto it = ModelInstanceManager::modelInstances.find(ProgramValues::GameObjects::landscape.modelName);
+		if (it == ModelInstanceManager::modelInstances.end()) {
+			spdlog::warn("No instances found for model type {}", ProgramValues::GameObjects::landscape.modelName);
+			return;
+		}
 
-		ProgramValues::GameObjects::landscape.scale = scale;
+		auto& instances = it->second;
+		for (auto& instance : instances) {
+			instance.scale = scale;
+		}
+
 		landscapeShape->setLocalScaling(btVector3(scale, scale, scale));
 	}
 

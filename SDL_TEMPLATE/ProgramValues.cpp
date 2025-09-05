@@ -4,6 +4,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Texture2D.h"
+#include "ModelInstance.h"
 
 namespace ProgramValues {
 	namespace Textures {
@@ -39,7 +40,6 @@ namespace ProgramValues {
 	}
 
 	namespace GameObjects {
-		Model* modelRef = nullptr;
 		Model landscape;
 	}
 
