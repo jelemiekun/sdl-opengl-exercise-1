@@ -222,8 +222,6 @@ void PhysicsManager::updateCollidedObjects(btCollisionObject* obj0, btCollisionO
 			(name0 == OBJECTS_POINTER_NAME::VOID_PLANE && name1 == OBJECTS_POINTER_NAME::THROWABLE_SPHERE);
 
 		if (throwableSphereAndVoidPlane && hasCollision) {
-			spdlog::info("COLLIDING");
-
 			void* userPtr = (name0 == OBJECTS_POINTER_NAME::THROWABLE_SPHERE)
 				? obj0->getUserPointer()
 				: obj1->getUserPointer();
@@ -233,7 +231,7 @@ void PhysicsManager::updateCollidedObjects(btCollisionObject* obj0, btCollisionO
 			auto modelInstance = ThrowableSphere::findSharedPtr(rawInstance);
 
 			if (modelInstance) {
-				ThrowableSphere::removeInstance(modelInstance);
+				ThrowableSphere::queueRemoval(modelInstance);
 			} else {
 				spdlog::error("Failed to resolve shared_ptr for throwable sphere!");
 			}

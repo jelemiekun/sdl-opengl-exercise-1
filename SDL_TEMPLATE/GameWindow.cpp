@@ -141,6 +141,7 @@ void GameWindow::update() {
         PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
         ModelInstanceManager::updateAllModelMatrices();
         ThrowableSphere::update();
+        ThrowableSphere::processPendingRemovals();
     }
 
     ProgramValues::Cameras::cameraReference->update();

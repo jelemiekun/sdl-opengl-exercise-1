@@ -49,6 +49,7 @@ public:
 	> modelPhysicsMap;
 
 private:
+	static std::vector<std::shared_ptr<ModelInstance>> pendingRemovals;
 	constexpr static Uint32 COOLDOWN_TIME = 1000;
 	constexpr static float MIN_RADIUS = 0.5f;
 	constexpr static float MAX_RADIUS = 2.0f;
@@ -64,6 +65,7 @@ private:
 	static PhysicsProperties generatePhysicsProperties(std::shared_ptr<ModelInstance> sphere);
 	static float generateRandomRadius();
 	static void manipulateRigidBody(btRigidBody& body);
+	static void removeInstance(std::shared_ptr<ModelInstance> modelInstance);
 	static void removeInstanceToModelTypeList(std::shared_ptr<ModelInstance> modelInstance);
 	static void removeInstanceToModelPhysicsMap(std::shared_ptr<ModelInstance> modelInstance);
 	static void deleteModelInstancePhysicalProperties(PhysicsProperties& physicsProperties);
@@ -72,6 +74,7 @@ public:
 	static void input(SDL_Event& event);
 	static void update();
 
-	static void removeInstance(std::shared_ptr<ModelInstance> modelInstance);
+	static void queueRemoval(std::shared_ptr<ModelInstance> instance);
+	static void processPendingRemovals();
 	static std::shared_ptr<ModelInstance> findSharedPtr(ModelInstance* raw);
 };

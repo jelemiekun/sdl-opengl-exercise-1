@@ -22,6 +22,8 @@ std::unordered_map<
 		SharedPtrEqual
 	> ThrowableSphere::modelPhysicsMap;
 
+std::vector<std::shared_ptr<ModelInstance>> ThrowableSphere::pendingRemovals;
+
 void ThrowableSphere::checkCooldownTimer() {
 	if (ProgramValues::ThrowableSphereFlags::cooldownDone)
 		return;
@@ -200,6 +202,17 @@ void ThrowableSphere::deleteModelInstancePhysicalProperties(PhysicsProperties& p
 	delete physicsProperties.body->getMotionState();
 	delete physicsProperties.body;
 	delete physicsProperties.shape;
+}
+
+void ThrowableSphere::queueRemoval(std::shared_ptr<ModelInstance> instance) {
+	pendingRemovals.push_back(instance);
+}
+
+void ThrowableSphere::processPendingRemovals() {
+	for (auto& inst : pendingRemovals) {
+        removeInstance(inst);
+    }
+    pendingRemovals.clear();
 }
 
 std::shared_ptr<ModelInstance> ThrowableSphere::findSharedPtr(ModelInstance* raw) {
