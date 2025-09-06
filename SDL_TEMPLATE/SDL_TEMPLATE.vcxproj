@@ -41,6 +41,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelInstance.cpp" />
     <ClCompile Include="ModelInstanceManager.cpp" />
+    <ClCompile Include="ObjectInfo.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="ProgramValues.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -81,6 +82,8 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelInstance.h" />
     <ClInclude Include="ModelInstanceManager.h" />
+    <ClInclude Include="ObjectInfo.h" />
+    <ClInclude Include="PhysicsConstants.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="ProgramValues.h" />
     <ClInclude Include="Shader.h" />

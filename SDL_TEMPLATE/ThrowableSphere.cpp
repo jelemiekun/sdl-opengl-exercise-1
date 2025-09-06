@@ -6,6 +6,7 @@
 #include "ModelInstance.h"
 #include "ModelInstanceManager.h"
 #include "PhysicsManager.h"
+#include "PhysicsConstants.h"
 #include <random>
 
 PhysicsProperties::PhysicsProperties(btSphereShape* r_Shape, btRigidBody* r_Body) :
@@ -68,10 +69,10 @@ void ThrowableSphere::addToModelTypeList(std::shared_ptr<ModelInstance> sphere) 
 }
 
 void ThrowableSphere::addToModelPhysicsMap(std::shared_ptr<ModelInstance> sphere) {
-    modelPhysicsMap.emplace(sphere, generatePhysicsProperties());
+    modelPhysicsMap.emplace(sphere, generatePhysicsProperties(sphere));
 }
 
-PhysicsProperties ThrowableSphere::generatePhysicsProperties() {
+PhysicsProperties ThrowableSphere::generatePhysicsProperties(std::shared_ptr<ModelInstance> sphere) {
 	btSphereShape* shape = new btSphereShape(btScalar(generateRandomRadius()));
 	
 	btScalar mass = 1.0f;
@@ -96,7 +97,9 @@ PhysicsProperties ThrowableSphere::generatePhysicsProperties() {
 			COLLISION_CATEGORIES::VOID_PLANE
 		);
 
+	rigidBody->setUserPointer(sphere.get());
 	manipulateRigidBody(*rigidBody);
+
 
 	PhysicsProperties physicsProperties(shape, rigidBody);
 
@@ -106,8 +109,8 @@ PhysicsProperties ThrowableSphere::generatePhysicsProperties() {
 float ThrowableSphere::generateRandomRadius() {
     static std::random_device dev;
     static std::mt19937 rng(dev());
-    std::uniform_int_distribution<int> d(static_cast<int>(MIN_RADIUS*10.0f), static_cast<int>(MAX_RADIUS*10.0f));
-	return static_cast<float>(d(rng)) / 10.0f;
+    std::uniform_real_distribution<float> dist(MIN_RADIUS, MAX_RADIUS);
+    return dist(rng);
 }
 
 void ThrowableSphere::manipulateRigidBody(btRigidBody& body) {

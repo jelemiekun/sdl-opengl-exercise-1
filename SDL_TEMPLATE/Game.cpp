@@ -16,6 +16,8 @@
 #include "DebugDrawer.h"
 #include "ModelInstanceManager.h"
 #include "ModelInstance.h"
+#include "ObjectInfo.h"
+#include "PhysicsConstants.h"
 
 Game::Game() : running(false), gameWindow(nullptr), imGuiWindow(nullptr) {}
 
@@ -88,6 +90,8 @@ void Game::initModels() {
 
     ProgramValues::GameObjects::landscape.init("assets/models/big_landscape.glb", "Land scape");
     ProgramValues::GameObjects::throwingBall.init("assets/models/Plain_Sphere.glb", "Throwing Ball");
+    ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.init("", "Proxy Player");
+    ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.init("", "Proxy Void Plane");
 
     spdlog::info("Models initialized successsfully.");
 }
@@ -211,13 +215,17 @@ void Game::initModelInstanceManager() {
         );
     }
 
-    { // MODEL INSTANCES
-        auto landscapeInstance = std::make_shared<ModelInstance>(&ProgramValues::GameObjects::landscape);
-        ModelInstanceManager::addModelInstance(
-            ProgramValues::GameObjects::landscape.modelName, landscapeInstance);
+    { // PROXIES - MODEL TYPES
+        ModelInstanceManager::addModelType(
+            ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.modelName
+        );
+
+        ModelInstanceManager::addModelType(
+            ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.modelName
+        );
     }
 
-    spdlog::info("Models instances initialized successsfully.");
+    spdlog::info("Model types initialized successfully.");
 }
 
 void Game::pairCameraAndCameraObject() {

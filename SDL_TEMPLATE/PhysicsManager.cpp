@@ -1,4 +1,3 @@
-#include <spdlog/spdlog.h>
 #include "PhysicsManager.h"
 #include "ProgramValues.h"
 #include "Model.h"
@@ -7,6 +6,9 @@
 #include "ModelInstance.h"
 #include "ModelInstanceManager.h"
 #include "DebugDrawer.h"
+#include "PhysicsConstants.h"
+#include "ObjectInfo.h"
+#include <spdlog/spdlog.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -163,38 +165,53 @@ void PhysicsManager::updateCollisions() {
 
 		if (!obj0 || !obj1) continue;
 
-		char* name0 = static_cast<char*>(obj0->getUserPointer());
-		char* name1 = static_cast<char*>(obj1->getUserPointer());
+		auto* instance0 = static_cast<ModelInstance*>(obj0->getUserPointer());
+		auto* instance1 = static_cast<ModelInstance*>(obj1->getUserPointer());
 
-		if (!name0 || !name1) {
-			spdlog::warn("One or two object collided has no name. Make sure to set user pointer for all objects!");
+		if (!instance0 || !instance1) {
+			spdlog::warn("Detected collision with unpointed model instance object(s). Set user pointers!");
 			continue;
 		}
+
+		std::string name0 = instance0->info.get()->name;
+		std::string name1 = instance1->info.get()->name;
 		
-		{
-			bool playerAndLandScape = (name0 == "PLAYER" && name1 == "LANDSCAPE") ||
-				(name0 == "LANDSCAPE" && name1 == "PLAYER");
+		updateCollidedObjects(name0, name1, hasCollision);
+	}
+}
 
-			if (playerAndLandScape) ProgramValues::CameraKeyEvents::isOnJump = !hasCollision;
+void PhysicsManager::updateCollidedObjects(const std::string& name0, const std::string& name1, const bool& hasCollision) {
+	{ // Player and Landscape
+		bool playerAndLandScape = (name0 == OBJECTS_POINTER_NAME::PLAYER && name1 == OBJECTS_POINTER_NAME::LANDSCAPE) ||
+			(name0 == OBJECTS_POINTER_NAME::LANDSCAPE && name1 == OBJECTS_POINTER_NAME::PLAYER);
+
+		if (playerAndLandScape) ProgramValues::CameraKeyEvents::isOnJump = !hasCollision;
+	}
+
+	{ // Player and void plane
+		bool playerAndVoidPlane = (name0 == OBJECTS_POINTER_NAME::PLAYER && name1 == OBJECTS_POINTER_NAME::VOID_PLANE) ||
+			(name0 == OBJECTS_POINTER_NAME::VOID_PLANE && name1 == OBJECTS_POINTER_NAME::PLAYER);
+
+		if (playerAndVoidPlane && hasCollision) {
+			btTransform trans;
+			trans.setIdentity();
+			trans.setOrigin(playerStartingPosition);
+			playerGhostBody->setWorldTransform(trans);
+
+			Camera* camera = &ProgramValues::Cameras::freeFly;
+			btTransform transRef = PhysicsManager::getTrans(playerGhostBody);
+			btVector3 pos = transRef.getOrigin();
+			camera->position = glm::vec3(pos.x(), pos.y(), pos.z());
 		}
+	}
 
-		{
-			bool playerAndVoidPlane = (name0 == "PLAYER" && name1 == "VOID_PLANE") ||
-				(name0 == "VOID_PLANE" && name1 == "PLAYER");
+	{ // Throwable Sphere and void plane
+		bool throwableSphereAndVoidPlane = (name0 == OBJECTS_POINTER_NAME::THROWABLE_SPHERE && name1 == OBJECTS_POINTER_NAME::VOID_PLANE) ||
+			(name0 == OBJECTS_POINTER_NAME::VOID_PLANE && name1 == OBJECTS_POINTER_NAME::THROWABLE_SPHERE);
 
-			if (playerAndVoidPlane && hasCollision) {
-				btTransform trans;
-				trans.setIdentity();
-				trans.setOrigin(playerStartingPosition);
-				playerGhostBody->setWorldTransform(trans);
+		if (throwableSphereAndVoidPlane && hasCollision) {
 
-				Camera* camera = &ProgramValues::Cameras::freeFly;
-				btTransform transRef = PhysicsManager::getTrans(playerGhostBody);
-				btVector3 pos = transRef.getOrigin();
-				camera->position = glm::vec3(pos.x(), pos.y(), pos.z());
-			}
 		}
-
 	}
 }
 
@@ -278,18 +295,7 @@ void PhysicsManager::initCollisionShapes() {
 
     landscapeShape = new btBvhTriangleMeshShape(triangleMesh, true);
 
-    float scale = 120.0f;
-    auto it = ModelInstanceManager::modelInstances.find(ProgramValues::GameObjects::landscape.modelName);
-    if (it == ModelInstanceManager::modelInstances.end()) {
-        spdlog::warn("No instances found for landscape model '{}'. Cannot apply scale.", 
-                     ProgramValues::GameObjects::landscape.modelName);
-    } else {
-        for (auto& instance : it->second) {
-            instance->scale = scale;
-        }
-        spdlog::debug("Applied scale {} to all instances of '{}'.", 
-                      scale, ProgramValues::GameObjects::landscape.modelName);
-    }
+    const float& scale = ProgramValues::modelsPreTransformScale::landscape;
 
     landscapeShape->setLocalScaling(btVector3(scale, scale, scale));
     spdlog::info("Landscape collision shape created.");
@@ -315,6 +321,13 @@ void PhysicsManager::initRigidBodies() {
 	}
 
 	{
+		auto landscapeInstance = std::make_shared<ModelInstance>(&ProgramValues::GameObjects::landscape);
+		ModelInstanceManager::addModelInstance(
+			ProgramValues::GameObjects::landscape.modelName, landscapeInstance);
+		landscapeInstance->scale = ProgramValues::modelsPreTransformScale::landscape;
+		landscapeInstance->updateModelMatrix();
+		landscapeInstance->info = std::move(std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::LANDSCAPE));
+
 		spdlog::info("Creating landscape rigid body...");
 		if (!landscapeShape) {
 			spdlog::error("landscapeShape is null!");
@@ -339,14 +352,24 @@ void PhysicsManager::initRigidBodies() {
 			COLLISION_CATEGORIES::PLAYER | COLLISION_CATEGORIES::OBJECTS);
 
 		landscapeBody->setFriction(1.0f);
-		landscapeBody->setUserPointer((void*)"LANDSCAPE");
+
+		landscapeBody->setUserPointer(landscapeInstance.get());
+
+
 		spdlog::info("Landscape rigid body initialized.");
 	}
 
 	{
+		auto playerGhostBodyInstance = std::make_shared<ModelInstance>(nullptr, false);
+		ModelInstanceManager::addModelInstance(
+			ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.modelName, playerGhostBodyInstance);
+		playerGhostBodyInstance->info = std::move(std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::PLAYER));
+
+
 		spdlog::info("Creating player rigid body...");
 		if (!playerShape) {
 			spdlog::error("playerShape is null!");
+			return;
 		}
 
 		btScalar mass = 60.0f;
@@ -376,11 +399,16 @@ void PhysicsManager::initRigidBodies() {
 		playerGhostBody->setAngularFactor(btVector3(0,0,0));
 		playerGhostBody->setRollingFriction(1.0f);
 		playerGhostBody->setSpinningFriction(1.0f);
-		playerGhostBody->setUserPointer((void*)"PLAYER");
+		playerGhostBody->setUserPointer(playerGhostBodyInstance.get());
 		spdlog::info("Player rigid body initialized.");
 	}
 
 	{
+		auto voidPlaneInstance = std::make_shared<ModelInstance>(nullptr, false);
+		ModelInstanceManager::addModelInstance(
+			ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.modelName, voidPlaneInstance);
+		voidPlaneInstance->info = std::move(std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::VOID_PLANE));
+
 		spdlog::info("Creating void plane rigid body...");
 		if (!voidPlaneShape) {
 			spdlog::error("voidPlaneShape is null!");
@@ -401,7 +429,7 @@ void PhysicsManager::initRigidBodies() {
 			COLLISION_CATEGORIES::VOID_PLANE,
 			COLLISION_CATEGORIES::PLAYER | COLLISION_CATEGORIES::OBJECTS);
 
-		voidPlaneBody->setUserPointer((void*)"VOID_PLANE");
+		voidPlaneBody->setUserPointer(voidPlaneInstance.get());
 		spdlog::info("Void plane rigid body initialized.");
 	}
 

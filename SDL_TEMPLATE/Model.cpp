@@ -14,6 +14,11 @@ void Model::init(std::string const& path, std::string const& modelName) {
 }
 
 void Model::loadModel(std::string const& path) {
+    if (path.empty()) {
+        spdlog::info("Failed to load model. Model path is empty.");
+        return;
+    }
+
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 

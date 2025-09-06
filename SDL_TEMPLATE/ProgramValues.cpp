@@ -44,6 +44,11 @@ namespace ProgramValues {
 		Model throwingBall;
 	}
 
+	namespace ProxiesGameObjcts {
+		Model PROXY_PHYSICS_PLAYER;
+		Model PROXY_VOID_PLANE;
+	}
+
 	namespace CameraKeyEvents {
 		bool isLockedIn = true;
 		bool isLockedInPressed = false;
@@ -97,5 +102,9 @@ namespace ProgramValues {
 	namespace ThrowableSphereFlags {
 		bool pressingDown = false;
 		bool cooldownDone = true;
+	}
+
+	namespace modelsPreTransformScale {
+		float landscape = 120.0f;
 	}
 }

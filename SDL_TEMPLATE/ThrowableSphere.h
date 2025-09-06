@@ -40,7 +40,7 @@ private:
 	static void updateCooldownTimerAndFlag();
 	static void addToModelTypeList(std::shared_ptr<ModelInstance> sphere);
 	static void addToModelPhysicsMap(std::shared_ptr<ModelInstance> sphere);
-	static PhysicsProperties generatePhysicsProperties();
+	static PhysicsProperties generatePhysicsProperties(std::shared_ptr<ModelInstance> sphere);
 	static float generateRandomRadius();
 	static void manipulateRigidBody(btRigidBody& body);
 	static void removeInstance(std::shared_ptr<ModelInstance> modelInstance); // TODO

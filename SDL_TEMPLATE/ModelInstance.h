@@ -1,11 +1,16 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <memory>
 
 class Shader;
 class Model;
+struct ObjectInfo;
 
 struct ModelInstance {
-    ModelInstance(Model* modelRef, bool gamma = false);
+    ModelInstance(Model* modelRef, bool r_Drawable = true, bool gamma = false);
+
+    std::shared_ptr<ObjectInfo> info;
+    bool drawable;
 
     Model* modelRef;
 	glm::mat4 model = glm::mat4(1.0f);
@@ -19,4 +24,3 @@ struct ModelInstance {
     glm::mat3 getNormalMatrix();
     void draw(Shader& shader);
 };
-

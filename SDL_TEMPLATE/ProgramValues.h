@@ -70,6 +70,11 @@ namespace ProgramValues {
 		extern Model throwingBall;
 	}
 
+	namespace ProxiesGameObjcts {
+		extern Model PROXY_PHYSICS_PLAYER;
+		extern Model PROXY_VOID_PLANE;
+	}
+
 	namespace CameraKeyEvents {
 		extern bool isLockedIn;
 		extern bool isLockedInPressed;
@@ -106,5 +111,9 @@ namespace ProgramValues {
 	namespace ThrowableSphereFlags {
 		extern bool pressingDown;
 		extern bool cooldownDone;
+	}
+
+	namespace modelsPreTransformScale {
+		extern float landscape;
 	}
 };

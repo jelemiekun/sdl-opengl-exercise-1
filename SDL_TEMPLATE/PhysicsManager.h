@@ -8,13 +8,6 @@ class Model;
 class DebugDrawer;
 struct ModelInstance;
 
-namespace COLLISION_CATEGORIES {
-	const short ENVIRONMENT		= 1 << 0;
-	const short PLAYER			= 1 << 1;
-	const short OBJECTS			= 1 << 2;
-	const short VOID_PLANE		= 1 << 3;
-};
-
 class PhysicsManager {
 public:
 	static void init();
@@ -40,6 +33,7 @@ private:
 	static void updateCamera();
 	static void updateExperiment();
 	static void updateCollisions();
+	static void updateCollidedObjects(const std::string& name0, const std::string& name1, const bool& hasCollision);
 
 private:
 	static btCapsuleShape* playerShape;

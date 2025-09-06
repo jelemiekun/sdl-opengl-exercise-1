@@ -2,7 +2,8 @@
 #include "Shader.h"
 #include "Model.h"
 
-ModelInstance::ModelInstance(Model* modelRef, bool gamma) : modelRef(modelRef), gammaCorrection(gamma)  {}
+ModelInstance::ModelInstance(Model* modelRef, bool r_Drawable, bool gamma) : 
+    info(nullptr), drawable(r_Drawable), modelRef(modelRef), gammaCorrection(gamma)  {}
 
 void ModelInstance::updateModelMatrix() {
 	model = glm::mat4(1.0f);
@@ -16,6 +17,9 @@ glm::mat3 ModelInstance::getNormalMatrix() {
 }
 
 void ModelInstance::draw(Shader& shader) {
+    if (!drawable)
+        return;
+
     for (unsigned int i = 0; i < modelRef->meshes.size(); i++) {
         modelRef->meshes[i].Draw(shader, model);
         shader.setMat3("u_NormalMatrix", getNormalMatrix());
