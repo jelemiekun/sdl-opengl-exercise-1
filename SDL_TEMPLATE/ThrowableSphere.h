@@ -50,8 +50,8 @@ public:
 
 private:
 	constexpr static Uint32 COOLDOWN_TIME = 1000;
-	constexpr static float MIN_RADIUS = 2.0f;
-	constexpr static float MAX_RADIUS = 10.0f;
+	constexpr static float MIN_RADIUS = 0.5f;
+	constexpr static float MAX_RADIUS = 2.0f;
 	static Uint32 lastTime;
 
 private:

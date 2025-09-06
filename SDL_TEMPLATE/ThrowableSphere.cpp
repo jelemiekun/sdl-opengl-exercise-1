@@ -81,7 +81,12 @@ void ThrowableSphere::addToModelPhysicsMap(std::shared_ptr<ModelInstance> sphere
 }
 
 PhysicsProperties ThrowableSphere::generatePhysicsProperties(std::shared_ptr<ModelInstance> sphere) {
-	btSphereShape* shape = new btSphereShape(btScalar(generateRandomRadius()));
+	float radius = generateRandomRadius();
+
+	sphere->scale = radius;
+	sphere->updateModelMatrix();
+
+	btSphereShape* shape = new btSphereShape(btScalar(radius));
 	
 	btScalar mass = 1.0f;
 	btVector3 inertia(0, 0, 0);
@@ -102,12 +107,12 @@ PhysicsProperties ThrowableSphere::generatePhysicsProperties(std::shared_ptr<Mod
 	PhysicsManager::getWorld()->addRigidBody(rigidBody,
 			COLLISION_CATEGORIES::OBJECTS,
 			COLLISION_CATEGORIES::ENVIRONMENT |
-			COLLISION_CATEGORIES::VOID_PLANE
+			COLLISION_CATEGORIES::VOID_PLANE |
+			COLLISION_CATEGORIES::OBJECTS
 		);
 
 	rigidBody->setUserPointer(sphere.get());
 	manipulateRigidBody(*rigidBody);
-
 
 	PhysicsProperties physicsProperties(shape, rigidBody);
 

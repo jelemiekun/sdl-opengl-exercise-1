@@ -88,10 +88,10 @@ void Game::initShaders() {
 void Game::initModels() {
     spdlog::info("Initializing models...");
 
-    ProgramValues::GameObjects::landscape.init("assets/models/big_landscape.glb", "Land scape");
-    ProgramValues::GameObjects::throwingBall.init("assets/models/Plain_Sphere.glb", "Throwing Ball");
-    ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.init("", "Proxy Player");
-    ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.init("", "Proxy Void Plane");
+    ProgramValues::GameObjects::landscape.init("assets/models/big_landscape.glb", OBJECTS_POINTER_NAME::LANDSCAPE);
+    ProgramValues::GameObjects::throwingBall.init("assets/models/Plain_Sphere.glb", OBJECTS_POINTER_NAME::THROWABLE_SPHERE);
+    ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.init("", OBJECTS_POINTER_NAME::PLAYER);
+    ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.init("", OBJECTS_POINTER_NAME::VOID_PLANE);
 
     spdlog::info("Models initialized successsfully.");
 }
