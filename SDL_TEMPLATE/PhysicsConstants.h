@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace COLLISION_CATEGORIES {
 	const short ENVIRONMENT		= 1 << 0;
@@ -8,8 +9,8 @@ namespace COLLISION_CATEGORIES {
 };
 
 namespace OBJECTS_POINTER_NAME {
-	constexpr const char* PLAYER = "PLAYER";
-	constexpr const char* LANDSCAPE = "LANDSCAPE";
-	constexpr const char* VOID_PLANE = "VOID_PLANE";
-	constexpr const char* THROWABLE_SPHERE = "THROWABLE_SPHERE";
+	const std::string PLAYER = "PLAYER";
+	const std::string LANDSCAPE = "LANDSCAPE";
+	const std::string VOID_PLANE = "VOID_PLANE";
+	const std::string THROWABLE_SPHERE = "THROWABLE_SPHERE";
 };

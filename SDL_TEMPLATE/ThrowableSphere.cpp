@@ -2,6 +2,7 @@
 #include "ThrowableSphere.h"
 #include "ProgramValues.h"
 #include "Camera.h"
+#include "ObjectInfo.h"
 #include "Model.h"
 #include "ModelInstance.h"
 #include "ModelInstanceManager.h"
@@ -14,7 +15,12 @@ PhysicsProperties::PhysicsProperties(btSphereShape* r_Shape, btRigidBody* r_Body
 
 Uint32 ThrowableSphere::lastTime = SDL_GetTicks();
 
-std::unordered_map<std::shared_ptr<ModelInstance>, PhysicsProperties> ThrowableSphere::modelPhysicsMap;
+std::unordered_map<
+		std::shared_ptr<ModelInstance>, 
+		PhysicsProperties, 
+		SharedPtrHash, 
+		SharedPtrEqual
+	> ThrowableSphere::modelPhysicsMap;
 
 void ThrowableSphere::checkCooldownTimer() {
 	if (ProgramValues::ThrowableSphereFlags::cooldownDone)
@@ -53,6 +59,8 @@ void ThrowableSphere::createThrowableSphere() {
 	spdlog::info("Creating throwable sphere...");
 
 	auto sphere = std::make_shared<ModelInstance>(&ProgramValues::GameObjects::throwingBall);
+	sphere->info = std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::THROWABLE_SPHERE);
+
 	addToModelPhysicsMap(sphere);
 	addToModelTypeList(sphere);
 
@@ -114,8 +122,24 @@ float ThrowableSphere::generateRandomRadius() {
 }
 
 void ThrowableSphere::manipulateRigidBody(btRigidBody& body) {
-	// TODO impulse
+    Camera* camera = ProgramValues::Cameras::cameraReference;
+    if (!camera) {
+        spdlog::error("Camera reference is null! Cannot shoot sphere.");
+        return;
+    }
+
+    glm::vec3 front = glm::normalize(camera->front);
+
+    btVector3 impulse(front.x, front.y, front.z);
+
+    float throwStrength = 25.0f;
+    impulse *= throwStrength;
+
+    body.applyCentralImpulse(impulse);
+
+    spdlog::info("Applied impulse to throwable sphere: {}, {}, {}", impulse.x(), impulse.y(), impulse.z());
 }
+
 
 void ThrowableSphere::removeInstance(std::shared_ptr<ModelInstance> modelInstance) {
 	spdlog::info("Removing instance of throwable sphere...");

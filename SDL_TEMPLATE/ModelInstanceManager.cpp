@@ -1,6 +1,9 @@
 #include "ModelInstanceManager.h"
 #include "ModelInstance.h"
 #include "PhysicsManager.h"
+#include "ThrowableSphere.h"
+#include "PhysicsConstants.h"
+#include "ObjectInfo.h"
 #include <spdlog/spdlog.h>
 
 std::unordered_map<std::string, std::vector<std::shared_ptr<ModelInstance>>> ModelInstanceManager::modelInstances;
@@ -82,13 +85,23 @@ void ModelInstanceManager::updateAllModelMatrices() {
 	spdlog::debug("Updating model matrices for {} model types...", modelInstances.size());
 
 	for (auto& modelTypes : modelInstances) {
+		const std::string& modelType = modelTypes.first;
 		auto& instances = modelTypes.second;
 
-		spdlog::trace("Updating matrices for model type {} ({} instances)", modelTypes.first, instances.size());
-
-		for (auto& instance : instances) {
-			PhysicsManager::updateModelMatrix(instance.get(), PhysicsManager::landscapeBody);
+		if (modelType == OBJECTS_POINTER_NAME::LANDSCAPE) {
+			for (auto& instance : instances) {
+				PhysicsManager::updateModelMatrix(instance.get(), PhysicsManager::landscapeBody);
+			}
+		} else if (modelType == OBJECTS_POINTER_NAME::THROWABLE_SPHERE) {
+			for (auto& instance : instances) {
+				auto it = ThrowableSphere::modelPhysicsMap.find(instance);
+				if (it != ThrowableSphere::modelPhysicsMap.end()) {
+					PhysicsManager::updateModelMatrix(instance.get(), it->second.body);
+				}
+			}
 		}
+
+		spdlog::trace("Updating matrices for model type {} ({} instances)", modelTypes.first, instances.size());
 	}
 }
 

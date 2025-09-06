@@ -4,6 +4,20 @@
 #include <unordered_map>
 
 struct ModelInstance;
+struct ObjectInfo;
+
+struct SharedPtrHash {
+    size_t operator()(const std::shared_ptr<ModelInstance>& ptr) const noexcept {
+        return std::hash<ModelInstance*>()(ptr.get());
+    }
+};
+
+struct SharedPtrEqual {
+    bool operator()(const std::shared_ptr<ModelInstance>& a,
+                    const std::shared_ptr<ModelInstance>& b) const noexcept {
+        return a.get() == b.get();
+    }
+};
 
 struct PhysicsProperties {
 	PhysicsProperties(btSphereShape* r_Shape, btRigidBody* r_Body);
@@ -26,11 +40,18 @@ struct PhysicsProperties {
 };
 
 class ThrowableSphere {
+public:
+	static std::unordered_map<
+		std::shared_ptr<ModelInstance>, 
+		PhysicsProperties, 
+		SharedPtrHash, 
+		SharedPtrEqual
+	> modelPhysicsMap;
+
 private:
-	static std::unordered_map<std::shared_ptr<ModelInstance>, PhysicsProperties> modelPhysicsMap;
 	constexpr static Uint32 COOLDOWN_TIME = 1000;
-	constexpr static float MIN_RADIUS = 0.1f;
-	constexpr static float MAX_RADIUS = 1.5f;
+	constexpr static float MIN_RADIUS = 2.0f;
+	constexpr static float MAX_RADIUS = 10.0f;
 	static Uint32 lastTime;
 
 private:
@@ -43,7 +64,7 @@ private:
 	static PhysicsProperties generatePhysicsProperties(std::shared_ptr<ModelInstance> sphere);
 	static float generateRandomRadius();
 	static void manipulateRigidBody(btRigidBody& body);
-	static void removeInstance(std::shared_ptr<ModelInstance> modelInstance); // TODO
+	static void removeInstance(std::shared_ptr<ModelInstance> modelInstance);
 	static void removeInstanceToModelTypeList(std::shared_ptr<ModelInstance> modelInstance);
 	static void removeInstanceToModelPhysicsMap(std::shared_ptr<ModelInstance> modelInstance);
 	static void deleteModelInstancePhysicalProperties(PhysicsProperties& physicsProperties);

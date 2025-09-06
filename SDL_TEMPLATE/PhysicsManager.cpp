@@ -173,8 +173,14 @@ void PhysicsManager::updateCollisions() {
 			continue;
 		}
 
-		std::string name0 = instance0->info.get()->name;
-		std::string name1 = instance1->info.get()->name;
+		if (!instance0->info || !instance1->info) {
+			spdlog::warn("Detected collision with ModelInstance(s) that have no ObjectInfo (info==null).");
+			continue;
+		}
+
+		std::string name0 = instance0->info->name;
+		std::string name1 = instance1->info->name;
+
 		
 		updateCollidedObjects(name0, name1, hasCollision);
 	}
@@ -326,7 +332,7 @@ void PhysicsManager::initRigidBodies() {
 			ProgramValues::GameObjects::landscape.modelName, landscapeInstance);
 		landscapeInstance->scale = ProgramValues::modelsPreTransformScale::landscape;
 		landscapeInstance->updateModelMatrix();
-		landscapeInstance->info = std::move(std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::LANDSCAPE));
+		landscapeInstance->info = std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::LANDSCAPE);
 
 		spdlog::info("Creating landscape rigid body...");
 		if (!landscapeShape) {
@@ -363,7 +369,7 @@ void PhysicsManager::initRigidBodies() {
 		auto playerGhostBodyInstance = std::make_shared<ModelInstance>(nullptr, false);
 		ModelInstanceManager::addModelInstance(
 			ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.modelName, playerGhostBodyInstance);
-		playerGhostBodyInstance->info = std::move(std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::PLAYER));
+		playerGhostBodyInstance->info = std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::PLAYER);
 
 
 		spdlog::info("Creating player rigid body...");
@@ -407,7 +413,7 @@ void PhysicsManager::initRigidBodies() {
 		auto voidPlaneInstance = std::make_shared<ModelInstance>(nullptr, false);
 		ModelInstanceManager::addModelInstance(
 			ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.modelName, voidPlaneInstance);
-		voidPlaneInstance->info = std::move(std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::VOID_PLANE));
+		voidPlaneInstance->info = std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::VOID_PLANE);
 
 		spdlog::info("Creating void plane rigid body...");
 		if (!voidPlaneShape) {
