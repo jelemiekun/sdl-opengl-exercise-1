@@ -64,7 +64,6 @@ private:
 	static PhysicsProperties generatePhysicsProperties(std::shared_ptr<ModelInstance> sphere);
 	static float generateRandomRadius();
 	static void manipulateRigidBody(btRigidBody& body);
-	static void removeInstance(std::shared_ptr<ModelInstance> modelInstance);
 	static void removeInstanceToModelTypeList(std::shared_ptr<ModelInstance> modelInstance);
 	static void removeInstanceToModelPhysicsMap(std::shared_ptr<ModelInstance> modelInstance);
 	static void deleteModelInstancePhysicalProperties(PhysicsProperties& physicsProperties);
@@ -72,4 +71,7 @@ private:
 public:
 	static void input(SDL_Event& event);
 	static void update();
+
+	static void removeInstance(std::shared_ptr<ModelInstance> modelInstance);
+	static std::shared_ptr<ModelInstance> findSharedPtr(ModelInstance* raw);
 };

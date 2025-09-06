@@ -73,7 +73,7 @@ void ThrowableSphere::updateCooldownTimerAndFlag() {
 }
 
 void ThrowableSphere::addToModelTypeList(std::shared_ptr<ModelInstance> sphere) {
-    ModelInstanceManager::addModelInstance(ProgramValues::GameObjects::throwingBall.modelName, sphere);
+    ModelInstanceManager::addModelInstance(ProgramValues::GameObjects::throwingBall.pointerName, sphere);
 }
 
 void ThrowableSphere::addToModelPhysicsMap(std::shared_ptr<ModelInstance> sphere) {
@@ -158,12 +158,12 @@ void ThrowableSphere::removeInstance(std::shared_ptr<ModelInstance> modelInstanc
 void ThrowableSphere::removeInstanceToModelTypeList(std::shared_ptr<ModelInstance> modelInstance) {
 	spdlog::info("Removing instance of throwable sphere in the model type map...");
 
-	std::string modelName = ProgramValues::GameObjects::throwingBall.modelName;
+	std::string& pointerName = ProgramValues::GameObjects::throwingBall.pointerName;
 
-	auto it = ModelInstanceManager::modelInstances.find(modelName);
+	auto it = ModelInstanceManager::modelInstances.find(pointerName);
 
 	if (it == ModelInstanceManager::modelInstances.end()) {
-		spdlog::error("Failed to proceed to removing instance of the model to the model type map. Model {} does not exist on the map!", modelName);
+		spdlog::error("Failed to proceed to removing instance of the model to the model type map. Model {} does not exist on the map!", pointerName);
 		return;
 	}
 
@@ -200,4 +200,14 @@ void ThrowableSphere::deleteModelInstancePhysicalProperties(PhysicsProperties& p
 	delete physicsProperties.body->getMotionState();
 	delete physicsProperties.body;
 	delete physicsProperties.shape;
+}
+
+std::shared_ptr<ModelInstance> ThrowableSphere::findSharedPtr(ModelInstance* raw) {
+    for (auto& entry : modelPhysicsMap) {
+        const auto& key = entry.first;
+        if (key.get() == raw) {
+            return key;
+        }
+    }
+    return nullptr;
 }

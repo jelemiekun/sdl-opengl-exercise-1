@@ -183,8 +183,8 @@ void GameWindow::render() {
         shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
         shaderObject->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
         
-        ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::landscape.modelName);
-        ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::throwingBall.modelName);
+        ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::landscape.pointerName);
+        ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::throwingBall.pointerName);
 
         shaderObject->unbind();
     } 

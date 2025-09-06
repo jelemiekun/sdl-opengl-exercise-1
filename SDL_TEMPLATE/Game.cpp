@@ -207,21 +207,21 @@ void Game::initModelInstanceManager() {
 
     { // MODEL TYPES
         ModelInstanceManager::addModelType(
-            ProgramValues::GameObjects::landscape.modelName
+            ProgramValues::GameObjects::landscape.pointerName
         );
 
         ModelInstanceManager::addModelType(
-            ProgramValues::GameObjects::throwingBall.modelName
+            ProgramValues::GameObjects::throwingBall.pointerName
         );
     }
 
     { // PROXIES - MODEL TYPES
         ModelInstanceManager::addModelType(
-            ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.modelName
+            ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.pointerName
         );
 
         ModelInstanceManager::addModelType(
-            ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.modelName
+            ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.pointerName
         );
     }
 

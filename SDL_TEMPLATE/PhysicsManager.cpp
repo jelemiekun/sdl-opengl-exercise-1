@@ -8,6 +8,7 @@
 #include "DebugDrawer.h"
 #include "PhysicsConstants.h"
 #include "ObjectInfo.h"
+#include "ThrowableSphere.h"
 #include <spdlog/spdlog.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -180,13 +181,18 @@ void PhysicsManager::updateCollisions() {
 
 		std::string name0 = instance0->info->name;
 		std::string name1 = instance1->info->name;
-
 		
-		updateCollidedObjects(name0, name1, hasCollision);
+		updateCollidedObjects(obj0, obj1, hasCollision);
 	}
 }
 
-void PhysicsManager::updateCollidedObjects(const std::string& name0, const std::string& name1, const bool& hasCollision) {
+void PhysicsManager::updateCollidedObjects(btCollisionObject* obj0, btCollisionObject* obj1, const bool& hasCollision) {
+	auto* instance0 = static_cast<ModelInstance*>(obj0->getUserPointer());
+	auto* instance1 = static_cast<ModelInstance*>(obj1->getUserPointer());
+
+	std::string name0 = instance0->info->name;
+	std::string name1 = instance1->info->name;
+	
 	{ // Player and Landscape
 		bool playerAndLandScape = (name0 == OBJECTS_POINTER_NAME::PLAYER && name1 == OBJECTS_POINTER_NAME::LANDSCAPE) ||
 			(name0 == OBJECTS_POINTER_NAME::LANDSCAPE && name1 == OBJECTS_POINTER_NAME::PLAYER);
@@ -216,8 +222,24 @@ void PhysicsManager::updateCollidedObjects(const std::string& name0, const std::
 			(name0 == OBJECTS_POINTER_NAME::VOID_PLANE && name1 == OBJECTS_POINTER_NAME::THROWABLE_SPHERE);
 
 		if (throwableSphereAndVoidPlane && hasCollision) {
+			spdlog::info("COLLIDING");
 
+			void* userPtr = (name0 == OBJECTS_POINTER_NAME::THROWABLE_SPHERE)
+				? obj0->getUserPointer()
+				: obj1->getUserPointer();
+
+			auto* rawInstance = static_cast<ModelInstance*>(userPtr);
+
+			auto modelInstance = ThrowableSphere::findSharedPtr(rawInstance);
+
+			if (modelInstance) {
+				ThrowableSphere::removeInstance(modelInstance);
+			} else {
+				spdlog::error("Failed to resolve shared_ptr for throwable sphere!");
+			}
 		}
+
+
 	}
 }
 
@@ -329,7 +351,7 @@ void PhysicsManager::initRigidBodies() {
 	{
 		auto landscapeInstance = std::make_shared<ModelInstance>(&ProgramValues::GameObjects::landscape);
 		ModelInstanceManager::addModelInstance(
-			ProgramValues::GameObjects::landscape.modelName, landscapeInstance);
+			ProgramValues::GameObjects::landscape.pointerName, landscapeInstance);
 		landscapeInstance->scale = ProgramValues::modelsPreTransformScale::landscape;
 		landscapeInstance->updateModelMatrix();
 		landscapeInstance->info = std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::LANDSCAPE);
@@ -368,7 +390,7 @@ void PhysicsManager::initRigidBodies() {
 	{
 		auto playerGhostBodyInstance = std::make_shared<ModelInstance>(nullptr, false);
 		ModelInstanceManager::addModelInstance(
-			ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.modelName, playerGhostBodyInstance);
+			ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.pointerName, playerGhostBodyInstance);
 		playerGhostBodyInstance->info = std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::PLAYER);
 
 
@@ -412,7 +434,7 @@ void PhysicsManager::initRigidBodies() {
 	{
 		auto voidPlaneInstance = std::make_shared<ModelInstance>(nullptr, false);
 		ModelInstanceManager::addModelInstance(
-			ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.modelName, voidPlaneInstance);
+			ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.pointerName, voidPlaneInstance);
 		voidPlaneInstance->info = std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::VOID_PLANE);
 
 		spdlog::info("Creating void plane rigid body...");

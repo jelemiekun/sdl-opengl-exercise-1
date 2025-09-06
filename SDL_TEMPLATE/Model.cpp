@@ -8,9 +8,9 @@ static glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& from);
 
 Model::Model() {}
 
-void Model::init(std::string const& path, std::string const& modelName) {
+void Model::init(std::string const& path, std::string const& r_PointerName) {
     loadModel(path);
-    this->modelName = modelName;
+    this->pointerName = r_PointerName;
 }
 
 void Model::loadModel(std::string const& path) {

@@ -33,7 +33,7 @@ private:
 	static void updateCamera();
 	static void updateExperiment();
 	static void updateCollisions();
-	static void updateCollidedObjects(const std::string& name0, const std::string& name1, const bool& hasCollision);
+	static void updateCollidedObjects(btCollisionObject* obj0, btCollisionObject* obj1, const bool& hasCollision);
 
 private:
 	static btCapsuleShape* playerShape;

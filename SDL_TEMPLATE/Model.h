@@ -18,10 +18,10 @@ public:
     std::vector<Texture> textures_loaded;
     std::vector<Mesh> meshes;
     std::string directory;
-    std::string modelName;
+    std::string pointerName;
 
     Model();
-    void init(std::string const& path, std::string const& modelName);
+    void init(std::string const& path, std::string const& r_PointerName);
 
 private:
     void loadModel(std::string const& path);
