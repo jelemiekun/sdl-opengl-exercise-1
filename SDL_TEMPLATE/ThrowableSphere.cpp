@@ -114,6 +114,7 @@ PhysicsProperties ThrowableSphere::generatePhysicsProperties(std::shared_ptr<Mod
 		);
 
 	rigidBody->setUserPointer(sphere.get());
+	rigidBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
 	manipulateRigidBody(*rigidBody);
 
 	PhysicsProperties physicsProperties(shape, rigidBody);

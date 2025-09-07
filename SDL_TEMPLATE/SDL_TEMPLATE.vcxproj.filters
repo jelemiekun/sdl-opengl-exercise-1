@@ -241,11 +241,11 @@
     <ClInclude Include="ThrowableSphere.h">
       <Filter>Header Files\custom</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsConstants.h">
-      <Filter>Header Files\custom</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectInfo.h">
-      <Filter>Header Files\custom</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsConstants.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
