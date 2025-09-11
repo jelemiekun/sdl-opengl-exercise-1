@@ -9,6 +9,8 @@
 #include "PhysicsConstants.h"
 #include "ObjectInfo.h"
 #include "ThrowableSphere.h"
+#include "ChainSet.h"
+#include "Chain.h"
 #include <spdlog/spdlog.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -37,14 +39,13 @@ void PhysicsManager::init() {
 	initDebugger();
 	initCollisionShapes();
 	initRigidBodies();
+	initChain();
 
 	spdlog::info("Physics manager initialized successfully.");
 }
 
 void PhysicsManager::update(const float deltaTime) {
 	dynamicsWorld->stepSimulation(deltaTime, 10);
-
-	if (SDL_GetTicks() > 10000) PhysicsManager::updateExperiment();
 	updateCamera();
 	updateCollisions();
 }
@@ -137,11 +138,6 @@ void PhysicsManager::updateCamera() {
 
 
     camera->updateCameraVectors();
-}
-
-
-void PhysicsManager::updateExperiment() {
-
 }
 
 void PhysicsManager::updateCollisions() {
@@ -388,9 +384,8 @@ void PhysicsManager::initRigidBodies() {
 	{
 		auto playerGhostBodyInstance = std::make_shared<ModelInstance>(nullptr, false);
 		ModelInstanceManager::addModelInstance(
-			ProgramValues::ProxiesGameObjcts::PROXY_PHYSICS_PLAYER.pointerName, playerGhostBodyInstance);
+			ProgramValues::ProxiesGameObjects::PROXY_PHYSICS_PLAYER.pointerName, playerGhostBodyInstance);
 		playerGhostBodyInstance->info = std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::PLAYER);
-
 
 		spdlog::info("Creating player rigid body...");
 		if (!playerShape) {
@@ -432,7 +427,7 @@ void PhysicsManager::initRigidBodies() {
 	{
 		auto voidPlaneInstance = std::make_shared<ModelInstance>(nullptr, false);
 		ModelInstanceManager::addModelInstance(
-			ProgramValues::ProxiesGameObjcts::PROXY_VOID_PLANE.pointerName, voidPlaneInstance);
+			ProgramValues::ProxiesGameObjects::PROXY_VOID_PLANE.pointerName, voidPlaneInstance);
 		voidPlaneInstance->info = std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::VOID_PLANE);
 
 		spdlog::info("Creating void plane rigid body...");
@@ -460,4 +455,10 @@ void PhysicsManager::initRigidBodies() {
 	}
 
 	spdlog::info("Initialized rigid bodies successfully.");
+}
+
+void PhysicsManager::initChain() {
+	auto newChainSet = std::make_unique<ChainSet>();
+	newChainSet->init(dynamicsWorld, 10, playerGhostBody, btVector3(0,0,0));
+	ChainSet::chainSets.push_back(std::move(newChainSet));
 }

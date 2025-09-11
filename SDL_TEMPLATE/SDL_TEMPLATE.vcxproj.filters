@@ -129,6 +129,18 @@
     <ClCompile Include="ObjectInfo.cpp">
       <Filter>Source Files\custom</Filter>
     </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>Source Files\custom</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterState.cpp">
+      <Filter>Source Files\custom</Filter>
+    </ClCompile>
+    <ClCompile Include="Chain.cpp">
+      <Filter>Source Files\custom</Filter>
+    </ClCompile>
+    <ClCompile Include="ChainSet.cpp">
+      <Filter>Source Files\custom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig">
@@ -241,11 +253,23 @@
     <ClInclude Include="ThrowableSphere.h">
       <Filter>Header Files\custom</Filter>
     </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>Header Files\custom</Filter>
+    </ClInclude>
     <ClInclude Include="ObjectInfo.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\custom</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsConstants.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterState.h">
+      <Filter>Header Files\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="Chain.h">
+      <Filter>Header Files\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="ChainSet.h">
+      <Filter>Header Files\custom</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

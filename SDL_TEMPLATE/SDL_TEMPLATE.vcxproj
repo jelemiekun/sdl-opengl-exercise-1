@@ -22,6 +22,10 @@
     <ClCompile Include="..\..\..\..\..\..\glad\src\glad.c" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraPair.cpp" />
+    <ClCompile Include="Chain.cpp" />
+    <ClCompile Include="ChainSet.cpp" />
+    <ClCompile Include="Character.cpp" />
+    <ClCompile Include="CharacterState.cpp" />
     <ClCompile Include="DebugDrawer.cpp" />
     <ClCompile Include="ElementBuffer.cpp" />
     <ClCompile Include="FPSManager.cpp" />
@@ -62,6 +66,10 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraPair.h" />
+    <ClInclude Include="Chain.h" />
+    <ClInclude Include="ChainSet.h" />
+    <ClInclude Include="Character.h" />
+    <ClInclude Include="CharacterState.h" />
     <ClInclude Include="DebugDrawer.h" />
     <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="FPSManager.h" />

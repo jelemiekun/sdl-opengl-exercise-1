@@ -16,6 +16,7 @@
 #include "ModelInstance.h"
 #include "ModelInstanceManager.h"
 #include "ThrowableSphere.h"
+#include "Character.h"
 
 static Game* game = Game::getInstance();
 
@@ -133,6 +134,7 @@ void GameWindow::handleWindowEvents(SDL_Event& e) {
 void GameWindow::input(SDL_Event& e) {
     handleWindowEvents(e);
     ProgramValues::Cameras::cameraReference->processInput(e, this);
+    ProgramValues::Characters::character1.input(e);
     ThrowableSphere::input(e);
 }
 
@@ -140,6 +142,7 @@ void GameWindow::update() {
     if (ProgramValues::CameraKeyEvents::isLockedIn) {
         PhysicsManager::update(ProgramValues::GameWindow::deltaTime);
         ModelInstanceManager::updateAllModelMatrices();
+        ProgramValues::Characters::character1.update();
         ThrowableSphere::update();
         ThrowableSphere::processPendingRemovals();
     }
@@ -186,6 +189,7 @@ void GameWindow::render() {
         
         ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::landscape.pointerName);
         ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::throwingBall.pointerName);
+        ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::singleChain.pointerName);
 
         shaderObject->unbind();
     } 

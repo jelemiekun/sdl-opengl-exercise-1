@@ -27,7 +27,7 @@ std::vector<std::shared_ptr<ModelInstance>> ThrowableSphere::pendingRemovals;
 void ThrowableSphere::checkCooldownTimer() {
 	if (ProgramValues::ThrowableSphereFlags::cooldownDone)
 		return;
-
+	 
 	Uint32 currentTime = SDL_GetTicks();
 
 	ProgramValues::ThrowableSphereFlags::cooldownDone = currentTime - lastTime > COOLDOWN_TIME;

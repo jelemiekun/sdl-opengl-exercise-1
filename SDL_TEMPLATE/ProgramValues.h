@@ -1,11 +1,14 @@
 #pragma once
 #include <glm/gtc/matrix_transform.hpp>
+#include <memory>
 
 class ImGuiWindow;
 class Camera;
 class Model;
 class Shader;
 class Texture2D;
+class Character;
+class ChainSet;
 
 namespace ProgramValues {
 	struct DirLight {
@@ -68,9 +71,10 @@ namespace ProgramValues {
 	namespace GameObjects {
 		extern Model landscape;
 		extern Model throwingBall;
+		extern Model singleChain;
 	}
 
-	namespace ProxiesGameObjcts {
+	namespace ProxiesGameObjects {
 		extern Model PROXY_PHYSICS_PLAYER;
 		extern Model PROXY_VOID_PLANE;
 	}
@@ -115,5 +119,9 @@ namespace ProgramValues {
 
 	namespace modelsPreTransformScale {
 		extern float landscape;
+	}
+
+	namespace Characters {
+		extern Character character1;
 	}
 };

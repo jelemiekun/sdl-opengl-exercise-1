@@ -2,6 +2,7 @@
 #include <bullet/btBulletDynamicsCommon.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <SDL.h>
 #include <vector>
 
 class Model;
@@ -29,9 +30,9 @@ private:
 	static void initDebugger();
 	static void initCollisionShapes();
 	static void initRigidBodies();
+	static void initChain();
 
 	static void updateCamera();
-	static void updateExperiment();
 	static void updateCollisions();
 	static void updateCollidedObjects(btCollisionObject* obj0, btCollisionObject* obj1, const bool& hasCollision);
 

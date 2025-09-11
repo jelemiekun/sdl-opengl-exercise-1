@@ -5,6 +5,8 @@
 #include "Camera.h"
 #include "Texture2D.h"
 #include "ModelInstance.h"
+#include "Character.h"
+#include "ChainSet.h"
 
 namespace ProgramValues {
 	namespace Textures {
@@ -42,9 +44,10 @@ namespace ProgramValues {
 	namespace GameObjects {
 		Model landscape;
 		Model throwingBall;
+		Model singleChain;
 	}
 
-	namespace ProxiesGameObjcts {
+	namespace ProxiesGameObjects {
 		Model PROXY_PHYSICS_PLAYER;
 		Model PROXY_VOID_PLANE;
 	}
@@ -106,5 +109,9 @@ namespace ProgramValues {
 
 	namespace modelsPreTransformScale {
 		float landscape = 120.0f;
+	}
+
+	namespace Characters {
+		Character character1;
 	}
 }
