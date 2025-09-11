@@ -90,7 +90,7 @@ void Game::initModels() {
 
     ProgramValues::GameObjects::landscape.init("assets/models/big_landscape.glb", OBJECTS_POINTER_NAME::LANDSCAPE);
     ProgramValues::GameObjects::throwingBall.init("assets/models/Plain_Sphere.glb", OBJECTS_POINTER_NAME::THROWABLE_SPHERE);
-    ProgramValues::GameObjects::singleChain.init("assets/models/Single_cHAIN.glb", OBJECTS_POINTER_NAME::SINGLE_CHAIN);
+    ProgramValues::GameObjects::singleChain.init("assets/models/Single_Chain.glb", OBJECTS_POINTER_NAME::SINGLE_CHAIN);
     ProgramValues::ProxiesGameObjects::PROXY_PHYSICS_PLAYER.init("", OBJECTS_POINTER_NAME::PLAYER);
     ProgramValues::ProxiesGameObjects::PROXY_VOID_PLANE.init("", OBJECTS_POINTER_NAME::VOID_PLANE);
 

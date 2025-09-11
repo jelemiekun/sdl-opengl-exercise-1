@@ -61,6 +61,12 @@ void Chain::initModel() {
     spdlog::debug("[ChainSystem] Model instance assigned to link {}", m_chainNumber);
 
     m_rigidBody->setUserPointer(m_model.get());
+
+    btCapsuleShape* capsule = static_cast<btCapsuleShape*>(m_shape);
+    float height = capsule->getHalfHeight() * 2.0f;
+    float radius = capsule->getRadius();
+    m_model->scale = height;
+    m_model->updateModelMatrix();
 }
 
 void Chain::addModelInstanceToTypeList() {

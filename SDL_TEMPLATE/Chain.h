@@ -6,15 +6,14 @@
 
 class Chain {
 private:
-	static constexpr btScalar SHAPE_RADIUS = 5.0f;
-	static constexpr btScalar SHAPE_HEIGHT = 8.0f;
+	static constexpr btScalar SHAPE_RADIUS = 15.0f;
+	static constexpr btScalar SHAPE_HEIGHT = 20.0f;
 	static constexpr btScalar MASS = 10.0f;
 	static constexpr btScalar V_INERTIA = 10.0f;
 	static btVector3 INERTIA;
 
 public:
 	void init(btDiscreteDynamicsWorld* dynamicsWorld, const int& chainCount, btRigidBody* chainedBody, const btVector3& anchorPoint);
-	void updateAllChains();
 
 public:
 	Chain(int chainNumber);

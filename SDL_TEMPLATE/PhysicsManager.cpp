@@ -232,8 +232,19 @@ void PhysicsManager::updateCollidedObjects(btCollisionObject* obj0, btCollisionO
 				spdlog::error("Failed to resolve shared_ptr for throwable sphere!");
 			}
 		}
+	}
 
+	{
+		bool chainAndLandScape = (name0 == OBJECTS_POINTER_NAME::SINGLE_CHAIN && name1 == OBJECTS_POINTER_NAME::LANDSCAPE) ||
+			(name0 == OBJECTS_POINTER_NAME::LANDSCAPE && name1 == OBJECTS_POINTER_NAME::SINGLE_CHAIN);
 
+		if (chainAndLandScape && hasCollision) {
+			btCollisionObject* chain = name0 == OBJECTS_POINTER_NAME::SINGLE_CHAIN ? obj0 : obj1;
+
+			spdlog::info("XYZ: {}, {}, {}", chain->getWorldTransform().getOrigin().x()
+				, chain->getWorldTransform().getOrigin().y()
+				, chain->getWorldTransform().getOrigin().z());
+		}
 	}
 }
 
@@ -459,6 +470,6 @@ void PhysicsManager::initRigidBodies() {
 
 void PhysicsManager::initChain() {
 	auto newChainSet = std::make_unique<ChainSet>();
-	newChainSet->init(dynamicsWorld, 10, playerGhostBody, btVector3(0,0,0));
+	newChainSet->init(dynamicsWorld, 1, playerGhostBody, btVector3(0,0,0));
 	ChainSet::chainSets.push_back(std::move(newChainSet));
 }
