@@ -6,7 +6,6 @@
 #include "Texture2D.h"
 #include "ModelInstance.h"
 #include "Character.h"
-#include "ChainSet.h"
 
 namespace ProgramValues {
 	namespace Textures {
@@ -44,7 +43,6 @@ namespace ProgramValues {
 	namespace GameObjects {
 		Model landscape;
 		Model throwingBall;
-		Model singleChain;
 	}
 
 	namespace ProxiesGameObjects {

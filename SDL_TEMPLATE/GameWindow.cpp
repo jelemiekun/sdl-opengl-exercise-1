@@ -187,9 +187,8 @@ void GameWindow::render() {
         shaderObject->setMat4("u_Projection", ProgramValues::GameWindow::projection);
         shaderObject->setMat4("u_View", ProgramValues::Cameras::cameraReference->getViewMatrix());
         
-        // ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::landscape.pointerName);
+        ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::landscape.pointerName);
         ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::throwingBall.pointerName);
-        ModelInstanceManager::drawAll(*shaderObject, ProgramValues::GameObjects::singleChain.pointerName);
 
         shaderObject->unbind();
     } 
@@ -217,7 +216,7 @@ void GameWindow::render() {
         shaderSkybox->setMat4("u_View", view);
 
         glBindVertexArray(ProgramValues::VertexArray::skyboxVAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
         glDepthMask(GL_TRUE);

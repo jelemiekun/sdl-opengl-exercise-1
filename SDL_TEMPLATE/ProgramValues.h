@@ -8,7 +8,6 @@ class Model;
 class Shader;
 class Texture2D;
 class Character;
-class ChainSet;
 
 namespace ProgramValues {
 	struct DirLight {
@@ -71,7 +70,6 @@ namespace ProgramValues {
 	namespace GameObjects {
 		extern Model landscape;
 		extern Model throwingBall;
-		extern Model singleChain;
 	}
 
 	namespace ProxiesGameObjects {

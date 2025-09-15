@@ -5,8 +5,6 @@
 #include "PhysicsConstants.h"
 #include "ObjectInfo.h"
 #include "ProgramValues.h"
-#include "ChainSet.h"
-#include "Chain.h"
 #include <spdlog/spdlog.h>
 
 std::unordered_map<std::string, std::vector<std::shared_ptr<ModelInstance>>> ModelInstanceManager::modelInstances;
@@ -100,16 +98,6 @@ void ModelInstanceManager::updateAllModelMatrices() {
 				auto it = ThrowableSphere::modelPhysicsMap.find(instance);
 				if (it != ThrowableSphere::modelPhysicsMap.end()) {
 					PhysicsManager::updateModelMatrix(instance.get(), it->second.body);
-				}
-			}
-		} else if (modelType == OBJECTS_POINTER_NAME::SINGLE_CHAIN) {
-			for (auto& instance : instances) {
-				for (auto& chainSetPtr : ChainSet::chainSets) {
-					ChainSet* chainSetRaw = chainSetPtr.get();
-					for (auto& chainPtr : chainSetRaw->chainData) {
-						Chain* chainRaw = chainPtr.get();
-						PhysicsManager::updateModelMatrix(instance.get(), chainRaw->m_rigidBody);
-					}
 				}
 			}
 		}

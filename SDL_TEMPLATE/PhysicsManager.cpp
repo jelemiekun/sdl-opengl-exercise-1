@@ -9,8 +9,6 @@
 #include "PhysicsConstants.h"
 #include "ObjectInfo.h"
 #include "ThrowableSphere.h"
-#include "ChainSet.h"
-#include "Chain.h"
 #include <spdlog/spdlog.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -39,7 +37,6 @@ void PhysicsManager::init() {
 	initDebugger();
 	initCollisionShapes();
 	initRigidBodies();
-	initChain();
 
 	spdlog::info("Physics manager initialized successfully.");
 }
@@ -231,19 +228,6 @@ void PhysicsManager::updateCollidedObjects(btCollisionObject* obj0, btCollisionO
 			} else {
 				spdlog::error("Failed to resolve shared_ptr for throwable sphere!");
 			}
-		}
-	}
-
-	{
-		bool chainAndLandScape = (name0 == OBJECTS_POINTER_NAME::SINGLE_CHAIN && name1 == OBJECTS_POINTER_NAME::LANDSCAPE) ||
-			(name0 == OBJECTS_POINTER_NAME::LANDSCAPE && name1 == OBJECTS_POINTER_NAME::SINGLE_CHAIN);
-
-		if (chainAndLandScape && hasCollision) {
-			btCollisionObject* chain = name0 == OBJECTS_POINTER_NAME::SINGLE_CHAIN ? obj0 : obj1;
-
-			spdlog::info("XYZ: {}, {}, {}", chain->getWorldTransform().getOrigin().x()
-				, chain->getWorldTransform().getOrigin().y()
-				, chain->getWorldTransform().getOrigin().z());
 		}
 	}
 }
@@ -466,10 +450,4 @@ void PhysicsManager::initRigidBodies() {
 	}
 
 	spdlog::info("Initialized rigid bodies successfully.");
-}
-
-void PhysicsManager::initChain() {
-	auto newChainSet = std::make_unique<ChainSet>();
-	newChainSet->init(dynamicsWorld, 1, playerGhostBody, btVector3(0,0,0));
-	ChainSet::chainSets.push_back(std::move(newChainSet));
 }

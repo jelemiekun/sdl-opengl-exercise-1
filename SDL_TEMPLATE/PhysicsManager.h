@@ -30,7 +30,6 @@ private:
 	static void initDebugger();
 	static void initCollisionShapes();
 	static void initRigidBodies();
-	static void initChain();
 
 	static void updateCamera();
 	static void updateCollisions();
