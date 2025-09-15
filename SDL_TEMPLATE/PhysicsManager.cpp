@@ -232,7 +232,7 @@ void PhysicsManager::updateCollidedObjects(btCollisionObject* obj0, btCollisionO
 	}
 }
 
-btDiscreteDynamicsWorld* PhysicsManager::getWorld() {
+btSoftRigidDynamicsWorld* PhysicsManager::getWorld() {
 	return dynamicsWorld;
 }
 

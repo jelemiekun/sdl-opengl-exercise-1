@@ -1,5 +1,6 @@
 #pragma once
 #include <bullet/btBulletDynamicsCommon.h>
+#include <bullet/BulletSoftBody/btSoftRigidDynamicsWorld.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <SDL.h>
@@ -16,14 +17,14 @@ public:
 	static void updateModelMatrix(ModelInstance* model, btRigidBody* body);
 
 	static inline btVector3 getGravity() { return gravity; }
-	static btDiscreteDynamicsWorld* getWorld();
+	static btSoftRigidDynamicsWorld* getWorld();
 	static btTransform getTrans(btRigidBody* RB);
 	static DebugDrawer* getDebugDrawer();
 
 private:
 	static btVector3 gravity;
 	static btVector3 playerStartingPosition;
-	static btDiscreteDynamicsWorld* dynamicsWorld;
+	static btSoftRigidDynamicsWorld* dynamicsWorld;
 	static DebugDrawer* debugDrawer;
 
 	static void initPhysicsWorld();
