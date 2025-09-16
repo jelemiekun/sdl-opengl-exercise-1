@@ -70,6 +70,7 @@ namespace ProgramValues {
 	namespace GameObjects {
 		extern Model landscape;
 		extern Model throwingBall;
+		extern Model cloth;
 	}
 
 	namespace ProxiesGameObjects {
@@ -117,6 +118,7 @@ namespace ProgramValues {
 
 	namespace modelsPreTransformScale {
 		extern float landscape;
+		extern float cloth;
 	}
 
 	namespace Characters {

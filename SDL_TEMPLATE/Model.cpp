@@ -13,6 +13,12 @@ void Model::init(std::string const& path, std::string const& r_PointerName) {
     this->pointerName = r_PointerName;
 }
 
+void Model::syncSoftBodyVertices() {
+    for (auto& mesh : meshes) {
+        mesh.updateVertices(flatVertices);
+    }
+}
+
 void Model::loadModel(std::string const& path) {
     if (path.empty()) {
         spdlog::info("Failed to load model. Model path is empty.");
@@ -50,6 +56,8 @@ void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& par
 
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
+     int vertexOffset = flatVertices.size() / 3;
+
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
@@ -68,6 +76,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             vector.y = mesh->mNormals[i].y;
             vector.z = mesh->mNormals[i].z;
             vertex.Normal = vector;
+        } else {
+            vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
         }
 
         if (mesh->mTextureCoords[0]) {
@@ -89,13 +99,49 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             vertex.TexCoords = glm::vec2(0.0f, 0.0f);
         }
 
+        if (mesh->HasTangentsAndBitangents()) {
+            vector.x = mesh->mTangents[i].x;
+            vector.y = mesh->mTangents[i].y;
+            vector.z = mesh->mTangents[i].z;
+            vertex.Tangent = vector;
+
+            vector.x = mesh->mBitangents[i].x;
+            vector.y = mesh->mBitangents[i].y;
+            vector.z = mesh->mBitangents[i].z;
+            vertex.Bitangent = vector;
+        } else {
+            vertex.Tangent   = glm::vec3(1.0f, 0.0f, 0.0f);
+            vertex.Bitangent = glm::vec3(0.0f, 0.0f, 1.0f);
+        }
+
+        flatVertices.push_back(vertex.Position.x);
+        flatVertices.push_back(vertex.Position.y);
+        flatVertices.push_back(vertex.Position.z);
+
+        flatVertices.push_back(vertex.Normal.x);
+        flatVertices.push_back(vertex.Normal.y);
+        flatVertices.push_back(vertex.Normal.z);
+
+        flatVertices.push_back(vertex.TexCoords.x);
+        flatVertices.push_back(vertex.TexCoords.y);
+
+        flatVertices.push_back(vertex.Tangent.x);
+        flatVertices.push_back(vertex.Tangent.y);
+        flatVertices.push_back(vertex.Tangent.z);
+
+        flatVertices.push_back(vertex.Bitangent.x);
+        flatVertices.push_back(vertex.Bitangent.y);
+        flatVertices.push_back(vertex.Bitangent.z);
+
         vertices.push_back(vertex);
     }
 
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
         aiFace face = mesh->mFaces[i];
-        for (unsigned int j = 0; j < face.mNumIndices; j++)
+        for (unsigned int j = 0; j < face.mNumIndices; j++) {
             indices.push_back(face.mIndices[j]);
+            flatIndices.push_back(face.mIndices[j] + vertexOffset);
+        }
     }
 
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];

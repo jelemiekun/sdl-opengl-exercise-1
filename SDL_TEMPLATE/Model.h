@@ -17,11 +17,14 @@ class Model {
 public:
     std::vector<Texture> textures_loaded;
     std::vector<Mesh> meshes;
+    std::vector<float> flatVertices;
+    std::vector<int> flatIndices;
     std::string directory;
     std::string pointerName;
 
     Model();
     void init(std::string const& path, std::string const& r_PointerName);
+    void syncSoftBodyVertices();
 
 private:
     void loadModel(std::string const& path);

@@ -1,6 +1,6 @@
 #pragma once
 #include <SDL.h>
-#include <bullet/btBulletDynamicsCommon.h>
+#include <btBulletDynamicsCommon.h>
 #include <unordered_map>
 
 struct ModelInstance;

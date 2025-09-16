@@ -14,8 +14,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <BulletSoftBody/btSoftBodyHelpers.h>
 
-btDiscreteDynamicsWorld* PhysicsManager::dynamicsWorld = nullptr;
+btSoftRigidDynamicsWorld* PhysicsManager::dynamicsWorld = nullptr;
+btSoftBodyWorldInfo* PhysicsManager::softBodyWorldInfo = nullptr;
 
 DebugDrawer* PhysicsManager::debugDrawer = nullptr;
 
@@ -27,6 +29,8 @@ btRigidBody* PhysicsManager::playerGhostBody = nullptr;
 btRigidBody* PhysicsManager::landscapeBody = nullptr;
 btRigidBody* PhysicsManager::voidPlaneBody = nullptr;
 
+btSoftBody* PhysicsManager::clothBody = nullptr;
+
 btVector3 PhysicsManager::gravity = btVector3(0, -9.8f, 0);
 btVector3 PhysicsManager::playerStartingPosition = btVector3(10.0f, 13.0f, -8.5);
 
@@ -37,6 +41,7 @@ void PhysicsManager::init() {
 	initDebugger();
 	initCollisionShapes();
 	initRigidBodies();
+	initSoftBodies();
 
 	spdlog::info("Physics manager initialized successfully.");
 }
@@ -64,6 +69,46 @@ void PhysicsManager::updateModelMatrix(ModelInstance* model, btRigidBody* body) 
         glm::mat4_cast(glmQuat) *
         glm::scale(glm::mat4(1.0f), glm::vec3(model->scale));
 }
+
+void PhysicsManager::updateModelMatrix(ModelInstance* model, btSoftBody* body) { 
+    btVector3 com = body->m_pose.m_com;
+    glm::vec3 pos(com.x(), com.y(), com.z());
+
+    btMatrix3x3 rotMat = body->m_pose.m_rot;
+    btQuaternion rot;
+    rotMat.getRotation(rot);
+
+    glm::quat glmQuat(rot.w(), rot.x(), rot.y(), rot.z());
+
+    model->model =
+        glm::translate(glm::mat4(1.0f), pos) *
+        glm::mat4_cast(glmQuat) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(model->scale));
+
+    // Each vertex has: pos(3) + normal(3) + texcoord(2) + tangent(3) + bitangent(3) = 14 floats
+	const int stride = 14;
+
+
+    for (int i = 0; i < body->m_nodes.size(); i++) {
+        const btVector3& nodePos = body->m_nodes[i].m_x;
+        const btVector3& nodeNormal = body->m_nodes[i].m_n;
+
+        int base = i * stride;
+
+		std::vector<float>& flatVertices = model->modelRef->flatVertices;
+
+        flatVertices[base + 0] = nodePos.x();
+        flatVertices[base + 1] = nodePos.y();
+        flatVertices[base + 2] = nodePos.z();
+
+        flatVertices[base + 3] = nodeNormal.x();
+        flatVertices[base + 4] = nodeNormal.y();
+        flatVertices[base + 5] = nodeNormal.z();
+    }
+
+	model->modelRef->syncSoftBodyVertices();
+}
+
 
 void PhysicsManager::updateCamera() {
     Camera* camera = &ProgramValues::Cameras::freeFly;
@@ -268,7 +313,13 @@ void PhysicsManager::initPhysicsWorld() {
     btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
     spdlog::trace("Creating dynamics world...");
-    dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
+	dynamicsWorld = new btSoftRigidDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
+
+	softBodyWorldInfo = new btSoftBodyWorldInfo;
+	softBodyWorldInfo->m_broadphase = broadphase;
+	softBodyWorldInfo->m_dispatcher = dispatcher;
+	softBodyWorldInfo->m_gravity = dynamicsWorld->getGravity();
+	softBodyWorldInfo->m_sparsesdf.Initialize();
 
     if (dynamicsWorld) {
         spdlog::info("Physics world created successfully.");
@@ -450,4 +501,42 @@ void PhysicsManager::initRigidBodies() {
 	}
 
 	spdlog::info("Initialized rigid bodies successfully.");
+}
+
+void PhysicsManager::initSoftBodies() {
+	{
+		auto clothInstance = std::make_shared<ModelInstance>(&ProgramValues::GameObjects::cloth);
+		ModelInstanceManager::addModelInstance(
+			ProgramValues::GameObjects::cloth.pointerName, clothInstance);
+		clothInstance->scale = ProgramValues::modelsPreTransformScale::cloth;
+		clothInstance->updateModelMatrix();
+		clothInstance->info = std::make_shared<ObjectInfo>(OBJECTS_POINTER_NAME::CLOTH);
+
+		spdlog::info("Vertices: {}", clothInstance->modelRef->flatVertices.size()/3);
+		spdlog::info("Indices : {}", clothInstance->modelRef->flatIndices.size());
+		spdlog::info("Triangles: {}", clothInstance->modelRef->flatIndices.size()/3);
+
+		const std::vector<float>& baseVerts = clothInstance->modelRef->flatVertices;
+		const std::vector<int>& baseIndices = clothInstance->modelRef->flatIndices;
+
+		clothBody = btSoftBodyHelpers::CreateFromTriMesh(
+			*softBodyWorldInfo,
+			baseVerts.data(),
+			baseIndices.data(),
+			baseIndices.size() / 3
+		);
+
+		btTransform move;
+		move.setIdentity();
+		move.setOrigin(btVector3(0, 35.0f, 0));
+
+		clothBody->transform(move);
+
+		btScalar scalar(ProgramValues::modelsPreTransformScale::cloth);
+		clothBody->scale(btVector3(scalar, scalar, scalar));
+
+		dynamicsWorld->addSoftBody(clothBody,
+			COLLISION_CATEGORIES::OBJECTS,
+			COLLISION_CATEGORIES::OBJECTS | COLLISION_CATEGORIES::ENVIRONMENT);
+	}
 }

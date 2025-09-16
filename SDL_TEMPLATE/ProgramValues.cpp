@@ -43,6 +43,7 @@ namespace ProgramValues {
 	namespace GameObjects {
 		Model landscape;
 		Model throwingBall;
+		Model cloth;
 	}
 
 	namespace ProxiesGameObjects {
@@ -107,6 +108,7 @@ namespace ProgramValues {
 
 	namespace modelsPreTransformScale {
 		float landscape = 120.0f;
+		float cloth = 10.0f;
 	}
 
 	namespace Characters {

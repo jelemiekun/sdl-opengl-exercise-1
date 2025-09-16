@@ -1,6 +1,6 @@
 #pragma once
-#include <bullet/btBulletDynamicsCommon.h>
-#include <bullet/BulletSoftBody/btSoftRigidDynamicsWorld.h>
+#include <btBulletDynamicsCommon.h>
+#include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <SDL.h>
@@ -15,6 +15,7 @@ public:
 	static void init();
 	static void update(const float deltaTime);
 	static void updateModelMatrix(ModelInstance* model, btRigidBody* body);
+	static void updateModelMatrix(ModelInstance* model, btSoftBody* body);
 
 	static inline btVector3 getGravity() { return gravity; }
 	static btSoftRigidDynamicsWorld* getWorld();
@@ -25,12 +26,14 @@ private:
 	static btVector3 gravity;
 	static btVector3 playerStartingPosition;
 	static btSoftRigidDynamicsWorld* dynamicsWorld;
+	static btSoftBodyWorldInfo* softBodyWorldInfo;
 	static DebugDrawer* debugDrawer;
 
 	static void initPhysicsWorld();
 	static void initDebugger();
 	static void initCollisionShapes();
 	static void initRigidBodies();
+	static void initSoftBodies();
 
 	static void updateCamera();
 	static void updateCollisions();
@@ -45,5 +48,6 @@ public:
 	static btRigidBody* landscapeBody;
 	static btRigidBody* playerGhostBody;
 	static btRigidBody* voidPlaneBody;
+	static btSoftBody* clothBody;
 };
 

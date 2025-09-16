@@ -100,6 +100,10 @@ void ModelInstanceManager::updateAllModelMatrices() {
 					PhysicsManager::updateModelMatrix(instance.get(), it->second.body);
 				}
 			}
+		} else if (modelType == OBJECTS_POINTER_NAME::CLOTH) {
+			for (auto& instance : instances) {
+				PhysicsManager::updateModelMatrix(instance.get(), PhysicsManager::clothBody);
+			}
 		}
 
 		spdlog::trace("Updating matrices for model type {} ({} instances)", modelTypes.first, instances.size());

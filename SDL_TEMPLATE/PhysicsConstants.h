@@ -13,4 +13,5 @@ namespace OBJECTS_POINTER_NAME {
 	const std::string LANDSCAPE = "LANDSCAPE";
 	const std::string VOID_PLANE = "VOID_PLANE";
 	const std::string THROWABLE_SPHERE = "THROWABLE_SPHERE";
+	const std::string CLOTH = "CLOTH";
 };

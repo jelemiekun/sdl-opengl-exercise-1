@@ -63,3 +63,11 @@ void Mesh::Draw(Shader& shader, glm::mat4& model) {
 	// Resets the active texture unit
 	glActiveTexture(GL_TEXTURE0);
 }
+
+void Mesh::updateVertices(const std::vector<float>& newVertices) {
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0,
+        newVertices.size() * sizeof(float),
+        newVertices.data());
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
